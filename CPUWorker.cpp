@@ -1,7 +1,3 @@
-//
-// Created by Denzel Macayan on 6/25/2026.
-//
-
 #include "CPUWorker.h"
 #include "ProcessScheduler.h"
 #include "ConfigManager.h"
@@ -63,6 +59,7 @@ void CPU::runWorkerLoop() {
         }
     }
 }
+
 void CPU::applyDelay() {
     uint32_t delayCycles = ConfigManager::getInstance()->getDelayPerExec();
 

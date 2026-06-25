@@ -1,8 +1,5 @@
-//
-// Created by Denzel Macayan on 6/25/2026.
-//
+#pragma once
 
-#ifndef CSOPESY_EMULATOR_SCHEDULINGCONSOLE_H
-#define CSOPESY_EMULATOR_SCHEDULINGCONSOLE_H
+class SchedulingConsole {
+};
 
-#endif //CSOPESY_EMULATOR_SCHEDULINGCONSOLE_H

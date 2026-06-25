@@ -1,7 +1,3 @@
-//
-// Created by Denzel Macayan on 6/25/2026.
-//
-
 #include "Process.h"
 #include <iostream>
 #include <ctime>
@@ -26,7 +22,7 @@ void Process::executeNextInstruction() {
     }
 }
 
-void Process::printProcessSMI() const { 
+void Process::printProcessSMI() const {
     // TODO ADD CORRECT PRINT PROCESS SMI;
     std::cout << "Process name: " << name << "\n";
     std::cout << "ID: " << pid << "\n\n";

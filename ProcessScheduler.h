@@ -1,7 +1,3 @@
-//
-// Created by Denzel Macayan on 6/25/2026.
-//
-
 #pragma once
 
 #include <memory>
@@ -22,7 +18,7 @@ public:
 
     void addProcess(const std::shared_ptr<Process>& process);
     std::shared_ptr<Process> fetchNextProcess();
-    void requeueProcess(std::shared_ptr<Process> process);
+    void requeueProcess(const std::shared_ptr<Process>& process);
 
     static void generateReportUtil() ;
 

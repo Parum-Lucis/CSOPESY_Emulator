@@ -1,7 +1,3 @@
-//
-// Created by Denzel Macayan on 6/25/2026.
-//
-
 #include "ProcessScheduler.h"
 #include "ConfigManager.h"
 #include <iostream>
@@ -57,7 +53,7 @@ std::shared_ptr<Process> ProcessScheduler::fetchNextProcess() {
     return process;
 }
 
-void ProcessScheduler::requeueProcess(std::shared_ptr<Process> process) {
+void ProcessScheduler::requeueProcess(const std::shared_ptr<Process>& process) {
     if (process->getState() != ProcessState::FINISHED) {
         addProcess(process);
     }

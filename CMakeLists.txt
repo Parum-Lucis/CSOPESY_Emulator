@@ -8,34 +8,26 @@ add_executable(CSOPESY_Emulator quattro.cpp
         configManager.cpp
         OSEmulator.h
         OSEmulator.cpp
-        Console/ConsoleManager.cpp
-        Console/ConsoleManager.h
-        Console/AConsole.cpp
-        Console/AConsole.h
-        Console/MainMenuConsole.cpp
-        Console/MainMenuConsole.h
-        Console/SchedulingConsole.cpp
-        Console/SchedulingConsole.h
-        Console/MarqueeConsole.cpp
-        Console/MarqueeConsole.h
-        Console/MemorySimulationConsole.cpp
-        Console/MemorySimulationConsole.h
         Process.cpp
         Process.h
-        Instruction/AInstruction.cpp
-        Instruction/AInstruction.h
-        Instruction/PrintCommand.cpp
-        Instruction/PrintCommand.h
-        Instruction/DeclareCommand.cpp
-        Instruction/DeclareCommand.h
-        Instruction/AddCommand.cpp
-        Instruction/AddCommand.h
-        Instruction/SubtractCommand.cpp
-        Instruction/SubtractCommand.h
-        Instruction/SleepCommand.cpp
-        Instruction/SleepCommand.h
+        Command/ACommand.cpp
+        Command/ACommand.h
+        Command/PrintCommand.cpp
+        Command/PrintCommand.h
+        Command/DeclareCommand.cpp
+        Command/DeclareCommand.h
+        Command/AddCommand.cpp
+        Command/AddCommand.h
+        Command/SubtractCommand.cpp
+        Command/SubtractCommand.h
+        Command/SleepCommand.cpp
+        Command/SleepCommand.h
         CPUWorker.cpp
         CPUWorker.h
         ProcessScheduler.cpp
         ProcessScheduler.h
+        Console/MainMenuConsole.cpp
+        Console/MainMenuConsole.h
+        Console/SchedulingConsole.cpp
+        Console/SchedulingConsole.h
 )
