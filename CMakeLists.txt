@@ -8,8 +8,8 @@ add_executable(CSOPESY_Emulator main.cpp
         configManager.cpp
         OSEmulator.h
         OSEmulator.cpp
-        ConsoleManager.cpp
-        ConsoleManager.h
+        Console/ConsoleManager.cpp
+        Console/ConsoleManager.h
         Console/AConsole.cpp
         Console/AConsole.h
         Console/MainMenuConsole.cpp

@@ -16,7 +16,7 @@ void ConfigManager::initialize() {
     std::ifstream configFile("config.txt");
 
     if (!configFile.is_open()) {
-        std::cerr << "Warning: config.txt not found. Generating a default config.txt file...\n";
+        std::cerr << "Warning: config.txt not found. Generating a default configuration...\n";
 
         std::ofstream newConfigFile("config.txt");
         if (newConfigFile.is_open()) {
@@ -28,9 +28,9 @@ void ConfigManager::initialize() {
             newConfigFile << "max-ins " << maxIns << "\n";
             newConfigFile << "delay-per-exec " << delayPerExec << "\n";
             newConfigFile.close();
-            std::cout << "Default config.txt successfully created in the current directory.\n";
+            std::cout << "Default config.txt successfully initialized\n";
         } else {
-            std::cerr << "Critical Error: Could not generate config.txt. Please check directory permissions.\n";
+            std::cerr << "Error: Could not generate config.txt. Check directory permissions.\n";
         }
 
         return;
