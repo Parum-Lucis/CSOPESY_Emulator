@@ -1,0 +1,8 @@
+//
+// Created by Denzel Macayan on 6/25/2026.
+//
+
+#ifndef CSOPESY_EMULATOR_PROCESS_H
+#define CSOPESY_EMULATOR_PROCESS_H
+
+#endif //CSOPESY_EMULATOR_PROCESS_H
