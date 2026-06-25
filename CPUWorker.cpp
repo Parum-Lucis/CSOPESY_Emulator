@@ -34,7 +34,6 @@ void CPU::runWorkerLoop() {
 
         if (currentProcess != nullptr) {
             if (schedulerAlgo == "fcfs") {
-                // The CPU refuses to let go until the process is 100% finished
                 while (currentProcess->getState() != ProcessState::FINISHED) {
                     currentProcess->executeNextInstruction();
                     applyDelay();

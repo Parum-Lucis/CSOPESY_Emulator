@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 ConfigManager* ConfigManager::instance = nullptr;
 
@@ -39,24 +40,45 @@ void ConfigManager::initialize() {
     std::string line;
     while (std::getline(configFile, line)) {
         std::istringstream iss(line);
-        std::string key;
 
-        if (iss >> key) {
-            if (key == "num-cpu") iss >> numCPU;
+        if (std::string key; iss >> key) {
+            if (key == "num-cpu") {
+                uint32_t val; iss >> val;
+                numCPU = std::clamp(val, 1u, 128u);
+            }
             else if (key == "scheduler") {
                 std::string value;
                 iss >> value;
-                if (!value.empty() && value.front() == '"') value.erase(0, 1);
-                if (!value.empty() && value.back() == '"') value.pop_back();
-                scheduler = value;
+                // Remove quotes
+                value.erase(std::remove(value.begin(), value.end(), '\"'), value.end());
+                // Validate algorithm
+                if (value == "fcfs" || value == "rr") {
+                    scheduler = value;
+                } else {
+                    scheduler = "fcfs";
+                }
             }
-            else if (key == "quantum-cycles") iss >> quantumCycles;
-            else if (key == "batch-process-freq") iss >> batchProcessFreq;
-            else if (key == "min-ins") iss >> minIns;
-            else if (key == "max-ins") iss >> maxIns;
-            else if (key == "delay-per-exec") iss >> delayPerExec;
+            else if (key == "quantum-cycles") {
+                uint32_t val; iss >> val;
+                quantumCycles = std::max(1u, val);
+            }
+            else if (key == "batch-process-freq") {
+                uint32_t val; iss >> val;
+                batchProcessFreq = std::max(1u, val);
+            }
+            else if (key == "min-ins") {
+                uint32_t val; iss >> val;
+                minIns = std::max(1u, val);
+            }
+            else if (key == "max-ins") {
+                uint32_t val; iss >> val;
+                maxIns = std::max(minIns, val);
+            }
+            else if (key == "delay-per-exec") {
+                uint32_t val; iss >> val;
+                delayPerExec = val;
+            }
         }
     }
-
     configFile.close();
 }

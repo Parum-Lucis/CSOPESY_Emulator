@@ -42,5 +42,5 @@ private:
     std::string creationTime;
 
     std::unordered_map<std::string, uint16_t> localMemory;
-    std::vector<std::shared_ptr<Instruction>> commandList{};
+    std::vector<std::shared_ptr<Instruction>> instructionList{};
 };
