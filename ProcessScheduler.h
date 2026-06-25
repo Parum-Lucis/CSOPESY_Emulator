@@ -32,6 +32,9 @@ private:
 
     std::queue<std::shared_ptr<Process>> readyQueue;
 
+    std::atomic<uint64_t> totalSystemTicks{0};
+    std::atomic<uint64_t> activeCpuTicks{0};
+
     mutable std::mutex queueMutex;
 
     std::vector<std::shared_ptr<CPU>> cpuWorkers{};
