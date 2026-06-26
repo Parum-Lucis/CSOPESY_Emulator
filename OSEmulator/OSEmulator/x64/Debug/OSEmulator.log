@@ -1,2 +1,4 @@
-﻿  MainMenuConsole.cpp
-  OSEmulator.vcxproj -> C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\x64\Debug\OSEmulator.exe
+﻿  ProcessConsole.cpp
+  ProcessScheduler.cpp
+  Generating Code...
+  OSEmulator.vcxproj -> D:\User\richa\Documents\GitHub\CSOPESY_Emulator\OSEmulator\x64\Debug\OSEmulator.exe

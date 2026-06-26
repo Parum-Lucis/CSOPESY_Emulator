@@ -1,6 +1,8 @@
 #include "MainMenuConsole.h"
 #include "configManager.h" 
 #include "ProcessScheduler.h" // Added ProcessScheduler include
+#include "ConsoleManager.h"
+#include "ProcessConsole.h"
 #include <iostream>
 #include <chrono>
 #include <ctime>
@@ -9,6 +11,7 @@
 #include <fstream>
 #include <windows.h>
 #include <conio.h>
+#include <algorithm>
 
 MainMenuConsole::MainMenuConsole() : running(true), initialized(false), currentInput("") {
     showCursor(false);
@@ -196,9 +199,31 @@ void MainMenuConsole::processInput() {
                         }
                     }
                     else if (currentInput.length() >= 10 && currentInput.substr(0, 10) == "screen -s ") {
+                        auto processList = ProcessScheduler::getInstance()->getAllProcesses();
                         std::string processName = currentInput.substr(10);
-                        responseStr = "Command Recognized: screen -s (Process Name: " + processName + ")";
-                        // FUTURE IMPLEMENTATION PLACEHOLDER
+
+                        auto it = std::find_if(processList.begin(), processList.end(),
+                            [&processName](const std::shared_ptr<Process>& procPtr) {
+                                return procPtr && procPtr->getName() == processName;
+                            });
+
+                        if (it != processList.end()) {
+                            responseStr = "Command Recognized: screen -s (Process Name: " + processName + ")";
+                            
+                            // 1. Declare the missing targetProcess and screenName variables
+                            std::shared_ptr<Process> targetProcess = *it;
+                            std::string screenName = "screen_" + processName;
+
+                            // 2. Register and switch to the new console
+                            ConsoleManager::getInstance()->registerConsole(screenName, [targetProcess]() {
+                                return std::make_shared<ProcessConsole>(targetProcess);
+                                });
+
+                            ConsoleManager::getInstance()->switchConsole(screenName);
+                        }
+                        else {
+                            responseStr = "Process " + processName + " not found.";
+                        }
                     }
                     else if (currentInput.length() >= 10 && currentInput.substr(0, 10) == "screen -r ") {
                         std::string processName = currentInput.substr(10);

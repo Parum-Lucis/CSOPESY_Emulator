@@ -12,21 +12,13 @@
 using ConsoleFactory = std::function<std::shared_ptr<AConsole>()>;
 
 class ConsoleManager {
-private:
-    // A stack naturally manages the "current" (top) and "previous" (under top) states.
-    std::stack<std::shared_ptr<AConsole>> consoleStack;
-
-    // Registry to hold mapped console factories
-    std::unordered_map<std::string, ConsoleFactory> consoleRegistry;
-
-    // Mutex to ensure thread-safe access to the current console state
-    mutable std::mutex managerMutex;
-
-    // Tracks if the manager itself is running
-    bool managerRunning;
-
 public:
-    ConsoleManager();
+    // --- ADDED: The Singleton Getter ---
+    static ConsoleManager* getInstance();
+
+    // --- ADDED: Prevent copying (Best practice for Singletons) ---
+    ConsoleManager(const ConsoleManager&) = delete;
+    ConsoleManager& operator=(const ConsoleManager&) = delete;
     ~ConsoleManager() = default;
 
     // Registers a new console type. 
@@ -47,4 +39,20 @@ public:
 
     // Renders the current console safely
     void drawConsole() const;
+
+private:
+    // --- CHANGED: Constructor is now private to enforce Singleton ---
+    ConsoleManager();
+
+    // A stack naturally manages the "current" (top) and "previous" (under top) states.
+    std::stack<std::shared_ptr<AConsole>> consoleStack;
+
+    // Registry to hold mapped console factories
+    std::unordered_map<std::string, ConsoleFactory> consoleRegistry;
+
+    // Mutex to ensure thread-safe access to the current console state
+    mutable std::recursive_mutex managerMutex;
+
+    // Tracks if the manager itself is running
+    bool managerRunning;
 };

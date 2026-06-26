@@ -149,6 +149,7 @@
     <ClCompile Include="MainMenuConsole.cpp" />
     <ClCompile Include="PrintCommand.cpp" />
     <ClCompile Include="Process.cpp" />
+    <ClCompile Include="ProcessConsole.cpp" />
     <ClCompile Include="ProcessScheduler.cpp" />
     <ClCompile Include="SleepCommand.cpp" />
     <ClCompile Include="SubtractCommand.cpp" />
@@ -164,6 +165,7 @@
     <ClInclude Include="MainMenuConsole.h" />
     <ClInclude Include="PrintCommand.h" />
     <ClInclude Include="Process.h" />
+    <ClInclude Include="ProcessConsole.h" />
     <ClInclude Include="ProcessScheduler.h" />
     <ClInclude Include="SleepCommand.h" />
     <ClInclude Include="SubtractCommand.h" />

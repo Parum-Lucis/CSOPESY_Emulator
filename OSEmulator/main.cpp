@@ -4,20 +4,16 @@
 #include <memory>
 
 int main() {
-    ConsoleManager manager;
+    //  Get the global Singleton instance pointer
+    auto* manager = ConsoleManager::getInstance();
 
-    // 2. Register your console classes with the manager
-    manager.registerConsole("main-menu", []() { return std::make_shared<MainMenuConsole>(); });
-    //manager.registerConsole("emulator", []() { return std::make_shared<EmulatorConsole>(); });
-    //manager.registerConsole("dummy", []() { return std::make_shared<DummyConsole>(); });
+    //  Use the arrow operator (->) to access its methods
+    manager->registerConsole("main-menu", []() { return std::make_shared<MainMenuConsole>(); });
+    manager->switchConsole("main-menu");
 
-    // 3. Set the Main Menu as the boot/entry console
-    manager.switchConsole("main-menu");
-
-    // Core emulator engine loop running at ~30 FPS
-    while (manager.isRunning()) {
-        manager.processInput();
-        manager.drawConsole();
+    while (manager->isRunning()) {
+        manager->processInput();
+        manager->drawConsole();
         std::this_thread::sleep_for(std::chrono::milliseconds(33));
     }
 

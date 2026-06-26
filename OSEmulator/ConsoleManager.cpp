@@ -1,14 +1,19 @@
 #include "ConsoleManager.h"
 
+ConsoleManager* ConsoleManager::getInstance() {
+    static ConsoleManager instance;
+    return &instance;
+}
+
 ConsoleManager::ConsoleManager() : managerRunning(true) {}
 
 void ConsoleManager::registerConsole(const std::string& name, ConsoleFactory factory) {
-    std::lock_guard<std::mutex> lock(managerMutex);
+    std::lock_guard<std::recursive_mutex> lock(managerMutex);
     consoleRegistry[name] = factory;
 }
 
 void ConsoleManager::switchConsole(const std::string& name) {
-    std::lock_guard<std::mutex> lock(managerMutex);
+    std::lock_guard<std::recursive_mutex> lock(managerMutex);
 
     auto it = consoleRegistry.find(name);
     if (it != consoleRegistry.end()) {
@@ -19,14 +24,14 @@ void ConsoleManager::switchConsole(const std::string& name) {
 }
 
 bool ConsoleManager::isRunning() const {
-    std::lock_guard<std::mutex> lock(managerMutex);
+    std::lock_guard<std::recursive_mutex> lock(managerMutex);
     // The manager is running as long as it hasn't been flagged to stop 
     // and there is at least one active console in the stack.
     return managerRunning && !consoleStack.empty();
 }
 
 void ConsoleManager::processInput() {
-    std::lock_guard<std::mutex> lock(managerMutex);
+    std::lock_guard<std::recursive_mutex> lock(managerMutex);
 
     if (consoleStack.empty()) {
         managerRunning = false;
@@ -53,7 +58,7 @@ void ConsoleManager::processInput() {
 }
 
 void ConsoleManager::drawConsole() const {
-    std::lock_guard<std::mutex> lock(managerMutex);
+    std::lock_guard<std::recursive_mutex> lock(managerMutex);
 
     if (!consoleStack.empty()) {
         consoleStack.top()->drawConsole();
