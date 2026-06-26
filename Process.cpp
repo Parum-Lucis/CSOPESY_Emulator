@@ -53,3 +53,11 @@ std::string Process::generateTimestamp() {
     oss << "(" << std::put_time(&tm, "%m/%d/%Y %I:%M:%S%p") << ")";
     return oss.str();
 }
+
+void Process::addCommand(std::shared_ptr<ACommand> command) {
+    commandList.push_back(command);
+}
+
+std::unordered_map<std::string, uint16_t>& Process::getMemoryMap() {
+    return memoryMap;
+}

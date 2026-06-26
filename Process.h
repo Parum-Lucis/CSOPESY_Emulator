@@ -21,9 +21,8 @@ public:
     void executeNextInstruction();
     void printProcessSMI() const;
 
-    void addCommand(std::shared_ptr<ACommand> command) {
-        commandList.push_back(command);
-    }
+    void addCommand(std::shared_ptr<ACommand> command);
+    std::unordered_map<std::string, uint16_t>& getMemoryMap();
 
     [[nodiscard]] std::string getName() const;
     [[nodiscard]] size_t getPID() const { return pid; }
