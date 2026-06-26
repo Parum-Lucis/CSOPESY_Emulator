@@ -43,7 +43,7 @@ void CPU::runWorkerLoop() {
             else if (schedulerAlgo == "rr") {
                 for (uint32_t i = 0; i < timeQuantum; ++i) {
                     if (currentProcess->getState() == ProcessState::FINISHED) {
-                        break; // Drop immediately if finished before quantum ends
+                        break;
                     }
                     currentProcess->executeNextInstruction();
                     applyDelay();

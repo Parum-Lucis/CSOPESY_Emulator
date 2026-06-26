@@ -19,8 +19,7 @@ void ConfigManager::initialize() {
     if (!configFile.is_open()) {
         std::cerr << "Warning: config.txt not found. Generating a default configuration...\n";
 
-        std::ofstream newConfigFile("config.txt");
-        if (newConfigFile.is_open()) {
+        if (std::ofstream newConfigFile("config.txt"); newConfigFile.is_open()) {
             newConfigFile << "num-cpu " << numCPU << "\n";
             newConfigFile << "scheduler \"" << scheduler << "\"\n";
             newConfigFile << "quantum-cycles " << quantumCycles << "\n";
@@ -50,7 +49,7 @@ void ConfigManager::initialize() {
                 std::string value;
                 iss >> value;
                 // Remove quotes
-                value.erase(std::remove(value.begin(), value.end(), '\"'), value.end());
+                value.erase(std::ranges::remove(value, '\"').begin(), value.end());
                 // Validate algorithm
                 if (value == "fcfs" || value == "rr") {
                     scheduler = value;

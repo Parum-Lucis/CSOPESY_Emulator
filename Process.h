@@ -27,7 +27,7 @@ public:
     [[nodiscard]] size_t getTotalLines() const { return totalLines; }
 
 private:
-    static [[nodiscard]] std::string generateTimestamp() ; // [cite: 980]
+    static [[nodiscard]] std::string generateTimestamp() ;
 
     size_t pid;
     std::string name;
