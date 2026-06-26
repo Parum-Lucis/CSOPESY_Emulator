@@ -20,10 +20,12 @@ public:
     std::shared_ptr<Process> fetchNextProcess();
     void requeueProcess(const std::shared_ptr<Process>& process);
 
-    static void generateReportUtil() ;
+    void toggleDummyGeneration(bool state);
+
+    static void generateReportUtil();
 
 private:
-    ProcessScheduler() : isRunning(false) {}
+    ProcessScheduler() : isRunning(false), isGeneratingDummy(false) {}
     ~ProcessScheduler() = default;
 
     std::queue<std::shared_ptr<Process>> readyQueue;
@@ -36,6 +38,10 @@ private:
     std::vector<std::shared_ptr<CPU>> cpuWorkers{};
 
     std::thread generatorThread;
+
     std::atomic<bool> isRunning;
-    void batchGeneratorLoop();
+    std::atomic<bool> isGeneratingDummy;
+
+    void dummyGenerationLoop();
+    static void generateDummyProcess(const std::shared_ptr<Process>& newProcess, size_t totalInstructions);
 };
