@@ -17,7 +17,7 @@ void CPU::start() {
 void CPU::stop() {
     isRunning = false;
     if (workerThread.joinable()) {
-		workerThread.detach(); // Detach the thread to allow it to finish independently
+        workerThread.join();
     }
 }
 

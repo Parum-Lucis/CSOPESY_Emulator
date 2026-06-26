@@ -31,6 +31,7 @@ bool ConsoleManager::isRunning() const {
 }
 
 void ConsoleManager::processInput() {
+
     std::lock_guard<std::recursive_mutex> lock(managerMutex);
 
     if (consoleStack.empty()) {
@@ -50,9 +51,17 @@ void ConsoleManager::processInput() {
     if (!currentConsole->isRunning()) {
         consoleStack.pop();
 
+        // FIX: Force immediate destruction so ~ProcessConsole() executes system("cls") NOW.
+        currentConsole.reset();
+
         // If exiting that console leaves us with nothing, shut down the manager.
         if (consoleStack.empty()) {
             managerRunning = false;
+        }
+        else {
+            // FIX: Force an immediate draw of the newly surfaced console (MainMenuConsole)
+            // This prevents the screen from remaining blank for a frame.
+            consoleStack.top()->drawConsole();
         }
     }
 }

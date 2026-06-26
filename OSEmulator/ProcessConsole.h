@@ -20,6 +20,7 @@ private:
     std::string currentInput;
     int consoleWidth = 80;
 
+
     // UI Utilities matching MainMenuConsole styling
     void setCursorPosition(int x, int y) const;
     void showCursor(bool show) const;

@@ -39,7 +39,23 @@
     <ClCompile Include="Process.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+<<<<<<< HEAD
+    <ClCompile Include="AddCommand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DeclareCommand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PrintCommand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SleepCommand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SubtractCommand.cpp">
+=======
     <ClCompile Include="ProcessConsole.cpp">
+>>>>>>> 04243e26cd0f9867a751985809ebaf97117b4ce3
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -68,7 +84,23 @@
     <ClInclude Include="ACommand.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+<<<<<<< HEAD
+    <ClInclude Include="AddCommand.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PrintCommand.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SleepCommand.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SubtractCommand.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DeclareCommand.h">
+=======
     <ClInclude Include="ProcessConsole.h">
+>>>>>>> 04243e26cd0f9867a751985809ebaf97117b4ce3
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,6 +1,6 @@
 #include "MainMenuConsole.h"
 #include "configManager.h" 
-#include "ProcessScheduler.h" // Added ProcessScheduler include
+#include "ProcessScheduler.h"
 #include "ConsoleManager.h"
 #include "ProcessConsole.h"
 #include <iostream>
@@ -16,10 +16,8 @@
 MainMenuConsole::MainMenuConsole() : running(true), initialized(false), currentInput("") {
     showCursor(false);
     system("cls");
-
-    std::cout << "=== CSOPESY OS Emulator Main Menu ===\n";
-    std::cout << "=====================================\n";
-    std::cout << "Type 'initialize' to setup the system.\n\n";
+    // Set the initial default welcome message
+    lastCommandOutput = "Type 'initialize' to setup the system.\n";
 }
 
 MainMenuConsole::~MainMenuConsole() {
@@ -35,12 +33,10 @@ void MainMenuConsole::processInput() {
     if (_kbhit()) {
         char ch = _getch();
         if (ch == '\r') {
-            std::string cleanPrompt = "[" + getCurrentDateTime() + "] > " + currentInput;
-            std::cout << "\r" << std::left << std::setw(consoleWidth - 1) << cleanPrompt;
-
             if (currentInput == "exit") {
+                ProcessScheduler::getInstance()->stop();
                 running = false;
-                std::cout << "\n";
+                system("cls");
             }
             else if (!currentInput.empty()) {
                 std::string responseStr = "Command not recognized.";
@@ -50,7 +46,6 @@ void MainMenuConsole::processInput() {
                         ConfigManager::getInstance()->initialize();
                         initialized = true;
 
-						//FOR TESTING: Display the loaded configuration
                         std::stringstream ss;
                         ss << "Command Recognized: initialize\n";
                         ss << "=> System initialized successfully.\n\n";
@@ -74,14 +69,11 @@ void MainMenuConsole::processInput() {
                 }
                 else {
                     if (currentInput == "scheduler-start") {
-                        // Guard: Check if it's already running
                         if (ProcessScheduler::getInstance()->isGeneratorRunning()) {
                             responseStr = "Command Recognized: scheduler-start\n=> Error: CPU Scheduler is already running.";
                         }
                         else {
                             ProcessScheduler::getInstance()->start();
-
-                            // Wait briefly so the background thread can generate the first process
                             std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
                             std::stringstream ss;
@@ -99,12 +91,10 @@ void MainMenuConsole::processInput() {
                             else {
                                 ss << "\n[Warning: Thread has not initialized the first process yet.]\n";
                             }
-
                             responseStr = ss.str();
                         }
                     }
                     else if (currentInput == "scheduler-stop") {
-                        // Guard: Check if it's already stopped
                         if (!ProcessScheduler::getInstance()->isGeneratorRunning()) {
                             responseStr = "Command Recognized: scheduler-stop\n=> Error: CPU Scheduler is not currently running.";
                         }
@@ -135,7 +125,6 @@ void MainMenuConsole::processInput() {
                     }
                     else if (currentInput == "report-util" || currentInput == "screen -ls") {
                         auto scheduler = ProcessScheduler::getInstance();
-
                         size_t coresTotal = ConfigManager::getInstance()->getNumCPU();
                         size_t coresUsed = scheduler->getCoresUsed();
                         size_t coresAvailable = coresTotal - coresUsed;
@@ -156,12 +145,10 @@ void MainMenuConsole::processInput() {
                         runningStream << "Running Processes:\n";
                         finishedStream << "Finished Processes:\n";
 
-                        // NOTE: Filtered to only display RUNNING and FINISHED processes per instructions
                         for (const auto& p : allProcesses) {
                             if (p->getState() == ProcessState::RUNNING) {
-                                // Formatting relies on Process::getCreationTime() returning "(MM/DD/YYYY HR:MN:SSAM/PM)"
                                 runningStream << std::left << std::setw(6) << p->getName() << "   "
-                                    << p->getCreationTime() << "   Core: " << std::right 
+                                    << p->getCreationTime() << "   Core: " << std::right
                                     << std::setw(2) << p->getCoreAssigned() << "   "
                                     << std::right << std::setw(5) << p->getCurrentLine() << " / "
                                     << std::right << std::setw(5) << p->getTotalLines() << "\n";
@@ -207,18 +194,34 @@ void MainMenuConsole::processInput() {
                             });
 
                         if (it != processList.end()) {
-                            responseStr = "Command Recognized: screen -s (Process Name: " + processName + ")";
-                            
-                            // 1. Declare the missing targetProcess and screenName variables
                             std::shared_ptr<Process> targetProcess = *it;
                             std::string screenName = "screen_" + processName;
 
-                            // 2. Register and switch to the new console
-                            ConsoleManager::getInstance()->registerConsole(screenName, [targetProcess]() {
-                                return std::make_shared<ProcessConsole>(targetProcess);
-                                });
+                            if (targetProcess->getState() == ProcessState::FINISHED) {
+                                responseStr = "Process " + processName + " has already finished.";
+                            }
+                            else {
+                                // 1. Register the new sub-console
+                                ConsoleManager::getInstance()->registerConsole(screenName, [targetProcess]() {
+                                    return std::make_shared<ProcessConsole>(targetProcess);
+                                    });
 
-                            ConsoleManager::getInstance()->switchConsole(screenName);
+                                // 2. Clear out the Main Menu state variables completely
+                                this->lastCommandOutput = "";
+                                this->currentInput = "";
+
+                                // 3. Clear the old main menu artifacts off the terminal completely
+                                system("cls");
+
+                                // 4. Switch the global pointer to your new ProcessConsole view
+                                ConsoleManager::getInstance()->switchConsole(screenName);
+
+                                // 5. Force an immediate draw call of the NEW console right here 
+                                // to override the main loop's frame cycle
+                                ConsoleManager::getInstance()->drawConsole();
+
+                                return; // Halt further main menu input parsing instantly
+                            }
                         }
                         else {
                             responseStr = "Process " + processName + " not found.";
@@ -226,16 +229,46 @@ void MainMenuConsole::processInput() {
                     }
                     else if (currentInput.length() >= 10 && currentInput.substr(0, 10) == "screen -r ") {
                         std::string processName = currentInput.substr(10);
-                        responseStr = "Command Recognized: screen -r (Process Name: " + processName + ")";
-                        // FUTURE IMPLEMENTATION PLACEHOLDER
-                    }
+
+                        // Fetch all processes and find the one that matches the requested name
+                        auto processList = ProcessScheduler::getInstance()->getAllProcesses();
+                        auto it = std::find_if(processList.begin(), processList.end(),
+                            [&processName](const std::shared_ptr<Process>& procPtr) {
+                                return procPtr && procPtr->getName() == processName;
+                            });
+
+                        if (it != processList.end()) {
+                            std::shared_ptr<Process> targetProcess = *it;
+                            std::string screenName = "screen_" + processName;
+
+                            // Register the sub-console (overwriting the old lambda is perfectly safe)
+                            ConsoleManager::getInstance()->registerConsole(screenName, [targetProcess]() {
+                                return std::make_shared<ProcessConsole>(targetProcess);
+                                });
+
+                            // Clear out the Main Menu state variables completely
+                            this->lastCommandOutput = "";
+                            this->currentInput = "";
+
+                            // Clear the screen and switch
+                            system("cls");
+                            ConsoleManager::getInstance()->switchConsole(screenName);
+                            ConsoleManager::getInstance()->drawConsole();
+
+                            return; // Halt further main menu input parsing instantly
+                        }
+                        else {
+                            responseStr = "Error: Process '" + processName + "' not found.";
+                        }
+                        }
                 }
 
-                std::cout << "\n" << responseStr << "\n";
+                lastCommandOutput = responseStr;
                 currentInput = "";
+                system("cls");
             }
             else {
-                std::cout << "\n";
+                system("cls"); // Clear screen if user hits enter on blank line
             }
         }
         else if (ch == '\b') {
@@ -248,13 +281,36 @@ void MainMenuConsole::processInput() {
 }
 
 void MainMenuConsole::drawConsole() const {
+    // 1. Force hardware block cursor to stay hidden to eliminate hardware jitter
+    showCursor(false);
+
+    // 2. Assemble the entire screen layout in an isolated memory buffer
+    std::stringstream frame;
+
+    frame << "=== CSOPESY OS Emulator Main Menu ===\n";
+    frame << "=====================================\n";
+
+    if (!lastCommandOutput.empty()) {
+        frame << lastCommandOutput << "\n\n";
+    }
+
+    // 3. Process the dynamic engine clock and text blinker string
     auto now = std::chrono::system_clock::now().time_since_epoch();
     auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
     bool showBlinker = (ms / 500) % 2 == 0;
     std::string cursorChar = showBlinker ? "|" : " ";
 
     std::string prompt = "[" + getCurrentDateTime() + "] > " + currentInput + cursorChar;
-    std::cout << "\r" << std::left << std::setw(consoleWidth - 1) << prompt;
+
+    // Safety Guard: If consoleWidth is uninitialized or 0, fallback to 80 
+    // to prevent stream alignment overflows pushing text away
+    int safeWidth = (consoleWidth > 0 && consoleWidth < 1000) ? consoleWidth : 80;
+
+    frame << std::left << std::setw(safeWidth - 1) << prompt;
+
+    // 4. Snap the cursor to the origin and print the whole frame instantly
+    setCursorPosition(0, 0);
+    std::cout << frame.str();
 }
 
 void MainMenuConsole::setCursorPosition(int x, int y) const {

@@ -1,16 +1,20 @@
 #include "ConsoleManager.h"
-#include "MainMenuConsole.h" // 1. Include the new Main Menu header
+#include "MainMenuConsole.h"
 #include <thread>
 #include <memory>
+#include <chrono>
 
 int main() {
-    //  Get the global Singleton instance pointer
+    // 1. Get the global Singleton instance pointer
     auto* manager = ConsoleManager::getInstance();
 
-    //  Use the arrow operator (->) to access its methods
-    manager->registerConsole("main-menu", []() { return std::make_shared<MainMenuConsole>(); });
+    // 2. Register via a factory lambda (matches ConsoleFactory definition)
+    manager->registerConsole("main-menu", []() {
+        return std::make_shared<MainMenuConsole>();
+        });
     manager->switchConsole("main-menu");
 
+    // 3. Core engine refresh loop running at ~30 FPS
     while (manager->isRunning()) {
         manager->processInput();
         manager->drawConsole();

@@ -26,6 +26,17 @@ void ProcessConsole::processInput() {
         char ch = _getch();
 
         if (ch == '\r') { // Enter key pressed
+            if (currentInput == "process-smi") {
+                // Clear the screen first to make room for the print
+                //system("cls");
+
+                // Call the process function, passing a lambda that calls our draw method
+                if (attachedProcess) {
+                    attachedProcess->printProcessSMI(currentInput, consoleWidth);
+                }
+
+                currentInput = ""; // Reset input buffer
+            }
             if (currentInput == "exit") {
                 running = false;
             }
@@ -46,56 +57,43 @@ void ProcessConsole::processInput() {
 }
 
 void ProcessConsole::drawConsole() const {
-    // Reset cursor to top left to rewrite without flickery screen-clears
+    // Reset cursor to top left to rewrite smoothly without screen-clearing flicker
     setCursorPosition(0, 0);
 
-    // Safely output current details about the running process
-    std::cout << std::left << std::setw(20) << "Process Name:" << attachedProcess->getName() << "\n";
-    std::cout << std::left << std::setw(20) << "PID:" << attachedProcess->getPID() << "\n";
+    // 1. Header Information matching your spec layout
+    std::cout << "Process name: " << attachedProcess->getName() << "\n";
+    std::cout << "ID: " << attachedProcess->getPID() << "\n";
+
     std::cout << "Logs:\n";
-    //for (const auto& logLine : attachedProcess->getLogs()) {
-    //    std::cout << logLine << "\n";
-    //}
 
-    std::cout << std::left << std::setw(20) << "Current instruction line:" << attachedProcess->getCurrentLine() << "\n";
-    std::cout << std::left << std::setw(20) << "Lines of code:" << attachedProcess->getTotalLines() << "\n";
+    // 1. Get the full list of logs
+    const auto& allLogs = attachedProcess->getLogs();
 
+    // 2. Set a strict limit on how many logs to display at once
+    size_t maxLogsToShow = 15; // Adjust this number based on your screen height preference
+
+    // 3. Calculate where to start printing so we only get the end of the list
+    size_t startIndex = (allLogs.size() > maxLogsToShow) ? allLogs.size() - maxLogsToShow : 0;
+
+    // 4. Print only the restricted range
+    for (size_t i = startIndex; i < allLogs.size(); ++i) {
+        std::cout << allLogs[i] << "\n";
+    }
+
+    std::cout << "\n";
+
+    std::cout << "Current instruction line: " << attachedProcess->getCurrentLine() << "\n";
+    std::cout << "Lines of code: " << attachedProcess->getTotalLines() << "\n\n";
+
+    // 2. Finished State Marker
     if (attachedProcess->getState() == ProcessState::FINISHED) {
         std::cout << "Finished!\n\n";
     }
+
+    // 3. Command Line Prompt Rendering (drawn strictly ONCE at the very bottom)
     std::string prompt = "root:\\> " + currentInput;
-    std::cout << "\r" << std::left << std::setw(consoleWidth - 1) << prompt;
-    
-    
-    
-    int core = attachedProcess->getCoreAssigned();
-    std::cout << std::left << std::setw(20) << "Core Assigned:";
-    if (core == -1) std::cout << "None\n";
-    else std::cout << core << "\n";
-    std::cout << "==================================================\n";
 
-    if (attachedProcess->getState() == ProcessState::FINISHED) {
-        std::cout << "Process execution completed successfully.\n";
-    }
-    else {
-        // Calculate progress percentage
-        double progress = attachedProcess->getTotalLines() > 0
-            ? (static_cast<double>(attachedProcess->getCurrentLine()) / attachedProcess->getTotalLines()) * 100.0
-            : 0.0;
-        std::cout << "Progress: " << std::fixed << std::setprecision(1) << progress << "%\n";
-    }
-
-    std::cout << "Type 'exit' to return to the Main Menu.\n\n";
-
-    // Handle interactive command-line blinking representation at the bottom
-    auto now = std::chrono::system_clock::now().time_since_epoch();
-    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
-    bool showBlinker = (ms / 500) % 2 == 0;
-    std::string cursorChar = showBlinker ? "|" : " ";
-
-    //std::string prompt = "root@" + attachedProcess->getName() + " > " + currentInput + cursorChar;
-
-    // Use line clearing spaces to handle changing prompt text widths cleanly
+    // std::setw pads the line with empty spaces to cleanly wipe out lingering characters
     std::cout << "\r" << std::left << std::setw(consoleWidth - 1) << prompt;
 }
 
