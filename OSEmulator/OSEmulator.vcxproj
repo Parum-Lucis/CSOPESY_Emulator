@@ -146,6 +146,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainMenuConsole.cpp" />
     <ClCompile Include="Process.cpp" />
+    <ClCompile Include="ProcessConsole.cpp" />
     <ClCompile Include="ProcessScheduler.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -156,6 +157,7 @@
     <ClInclude Include="CPUWorker.h" />
     <ClInclude Include="MainMenuConsole.h" />
     <ClInclude Include="Process.h" />
+    <ClInclude Include="ProcessConsole.h" />
     <ClInclude Include="ProcessScheduler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
