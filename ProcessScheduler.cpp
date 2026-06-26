@@ -92,25 +92,25 @@ static void ProcessScheduler::generateDummyProcess(const std::shared_ptr<Process
         switch (cmdType) {
             case 0:
                 newCmd = std::make_shared<DeclareCommand>(
-                    newProcess->getMemoryMap(), randVar1, randVal
+                    newProcess->getLocalMemory(), randVar1, randVal
                 );
                 break;
 
             case 1:
                 newCmd = std::make_shared<AddCommand>(
-                    newProcess->getMemoryMap(), randVar1, randVar1, randVal
+                    newProcess->getLocalMemory(), randVar1, randVar1, randVal
                 );
                 break;
 
             case 2:
                 newCmd = std::make_shared<SubtractCommand>(
-                    newProcess->getMemoryMap(), randVar1, randVar1, randVal
+                    newProcess->getLocalMemory(), randVar1, randVar1, randVal
                 );
                 break;
 
             case 3:
                 newCmd = std::make_shared<PrintCommand>(
-                    newProcess->getMemoryMap(), randVar1
+                    newProcess->getLocalMemory(), randVar1
                 );
                 break;
 
