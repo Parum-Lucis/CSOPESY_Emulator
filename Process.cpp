@@ -59,5 +59,5 @@ void Process::addCommand(std::shared_ptr<ACommand> command) {
 }
 
 std::unordered_map<std::string, uint16_t>& Process::getLocalMemory() {
-    return getLocalMemory;
+    return localMemory;
 }
