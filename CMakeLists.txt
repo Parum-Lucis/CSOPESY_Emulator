@@ -10,7 +10,6 @@ add_executable(CSOPESY_Emulator quattro.cpp
         OSEmulator.cpp
         Process.cpp
         Process.h
-        Command/ACommand.cpp
         Command/ACommand.h
         Command/PrintCommand.cpp
         Command/PrintCommand.h

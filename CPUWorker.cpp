@@ -17,18 +17,21 @@ void CPU::start() {
 void CPU::stop() {
     isRunning = false;
     if (workerThread.joinable()) {
-        workerThread.detach();
+        workerThread.join();
     }
 }
 
 void CPU::runWorkerLoop() {
-    std::string schedulerAlgo = ConfigManager::getInstance()->getSchedulerAlgorithm(); // e.g., "fcfs" or "rr"
+    std::string schedulerAlgo = ConfigManager::getInstance()->getSchedulerAlgorithm();
     uint32_t timeQuantum = ConfigManager::getInstance()->getTimeQuantum();
 
     while (isRunning) {
         currentProcess = ProcessScheduler::getInstance()->fetchNextProcess();
 
         if (currentProcess != nullptr) {
+
+            currentProcess->setState(ProcessState::RUNNING);
+
             if (schedulerAlgo == "fcfs") {
                 while (currentProcess->getState() != ProcessState::FINISHED) {
                     currentProcess->executeNextInstruction();
@@ -40,7 +43,7 @@ void CPU::runWorkerLoop() {
             else if (schedulerAlgo == "rr") {
                 for (uint32_t i = 0; i < timeQuantum; ++i) {
                     if (currentProcess->getState() == ProcessState::FINISHED) {
-                        break;
+                        break; // Drop immediately if finished before quantum ends
                     }
                     currentProcess->executeNextInstruction();
                     applyDelay();
@@ -49,6 +52,8 @@ void CPU::runWorkerLoop() {
                 if (currentProcess->getState() == ProcessState::FINISHED) {
                     currentProcess = nullptr;
                 } else {
+                    currentProcess->setState(ProcessState::READY);
+
                     ProcessScheduler::getInstance()->requeueProcess(currentProcess);
                     currentProcess = nullptr;
                 }
