@@ -70,7 +70,7 @@ void ProcessScheduler::toggleDummyGeneration(bool state) {
     isGeneratingDummy = state;
 }
 
-#include <random> // Ensure this is at the top of your file!
+#include <random>
 
 static void ProcessScheduler::generateDummyProcess(const std::shared_ptr<Process>& newProcess, size_t totalInstructions) {
     std::vector<std::string> dummyVars = {"A", "B", "C", "X", "Y"};
