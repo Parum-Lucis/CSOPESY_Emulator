@@ -1,8 +1,13 @@
 C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\AConsole.cpp;C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\OSEmulator\x64\Debug\AConsole.obj
+C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\AddCommand.cpp;C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\OSEmulator\x64\Debug\AddCommand.obj
 C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\configManager.cpp;C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\OSEmulator\x64\Debug\configManager.obj
 C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\ConsoleManager.cpp;C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\OSEmulator\x64\Debug\ConsoleManager.obj
 C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\CPUWorker.cpp;C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\OSEmulator\x64\Debug\CPUWorker.obj
+C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\DeclareCommand.cpp;C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\OSEmulator\x64\Debug\DeclareCommand.obj
 C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\main.cpp;C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\OSEmulator\x64\Debug\main.obj
 C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\MainMenuConsole.cpp;C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\OSEmulator\x64\Debug\MainMenuConsole.obj
+C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\PrintCommand.cpp;C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\OSEmulator\x64\Debug\PrintCommand.obj
 C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\Process.cpp;C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\OSEmulator\x64\Debug\Process.obj
 C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\ProcessScheduler.cpp;C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\OSEmulator\x64\Debug\ProcessScheduler.obj
+C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\SleepCommand.cpp;C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\OSEmulator\x64\Debug\SleepCommand.obj
+C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\SubtractCommand.cpp;C:\Users\Luis Andrew\source\repos\CSOPESY_Emulator\OSEmulator\OSEmulator\x64\Debug\SubtractCommand.obj

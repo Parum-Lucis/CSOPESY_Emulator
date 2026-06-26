@@ -1,5 +1,10 @@
 #include "ProcessScheduler.h"
 #include "ConfigManager.h"
+#include "PrintCommand.h"
+#include "AddCommand.h"
+#include "SubtractCommand.h"
+#include "DeclareCommand.h"
+#include "SleepCommand.h"
 #include <iostream>
 #include <fstream>
 #include <chrono>
@@ -77,6 +82,61 @@ void ProcessScheduler::requeueProcess(const std::shared_ptr<Process>& process) {
     }
 }
 
+void ProcessScheduler::generateDummyProcess(const std::shared_ptr<Process>& newProcess, size_t totalInstructions) {
+    std::vector<std::string> dummyVars = { "A", "B", "C", "X", "Y" };
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    std::uniform_int_distribution<int> cmdDist(0, 4);
+    std::uniform_int_distribution<size_t> varDist(0, dummyVars.size() - 1);
+    std::uniform_int_distribution<int> valDist(0, 99);
+
+    for (size_t i = 0; i < totalInstructions; i++) {
+        int cmdType = cmdDist(gen);
+
+        std::shared_ptr<ACommand> newCmd = nullptr;
+
+        std::string randVar1 = dummyVars[varDist(gen)];
+        std::string randVar2 = dummyVars[varDist(gen)];
+        std::string randVal = std::to_string(valDist(gen));
+
+        switch (cmdType) {
+        case 0:
+            newCmd = std::make_shared<DeclareCommand>(
+                newProcess->getLocalMemory(), randVar1, randVal
+            );
+            break;
+
+        case 1:
+            newCmd = std::make_shared<AddCommand>(
+                newProcess->getLocalMemory(), randVar1, randVar1, randVal
+            );
+            break;
+
+        case 2:
+            newCmd = std::make_shared<SubtractCommand>(
+                newProcess->getLocalMemory(), randVar1, randVar1, randVal
+            );
+            break;
+
+        case 3:
+            newCmd = std::make_shared<PrintCommand>(
+                newProcess->getLocalMemory(), randVar1
+            );
+            break;
+
+        case 4:
+            newCmd = std::make_shared<SleepCommand>("10");
+            break;
+        }
+
+        if (newCmd != nullptr) {
+            newProcess->addCommand(newCmd);
+        }
+    }
+}
+
 void ProcessScheduler::batchGeneratorLoop() {
     uint32_t batchFreq = ConfigManager::getInstance()->getBatchProcessFreq();
     uint32_t minIns = ConfigManager::getInstance()->getMinIns();
@@ -95,9 +155,12 @@ void ProcessScheduler::batchGeneratorLoop() {
 
         // Instantiate Process dynamically
         auto newProcess = std::make_shared<Process>(globalProcessCounter, "p" + std::to_string(globalProcessCounter), totalInstructions);
+        
+        generateDummyProcess(newProcess, totalInstructions);
+        
         addProcess(newProcess);
 
-        // Track stats dynamically for testing & reporting
+        // Track stats dynamically FOR TESTING & reporting
         {
             std::lock_guard<std::mutex> lock(statsMutex);
             if (!firstProcess) {
@@ -112,7 +175,7 @@ void ProcessScheduler::batchGeneratorLoop() {
         globalProcessCounter++;
 
         // Wait representing CPU ticks before generating next batch
-        std::this_thread::sleep_for(std::chrono::milliseconds(100 / (batchFreq > 0 ? batchFreq : 1)));
+        std::this_thread::sleep_for(std::chrono::milliseconds(batchFreq * 10));
     }
 }
 

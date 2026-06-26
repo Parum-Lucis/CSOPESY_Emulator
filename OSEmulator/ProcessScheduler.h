@@ -59,4 +59,6 @@ private:
     std::shared_ptr<Process> firstProcess;
     std::shared_ptr<Process> latestProcess;
     mutable std::mutex statsMutex; // Reused to protect allProcessList as well
+
+   void generateDummyProcess(const std::shared_ptr<Process>& newProcess, size_t totalInstructions);
 };

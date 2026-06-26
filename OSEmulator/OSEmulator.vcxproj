@@ -140,23 +140,33 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AConsole.cpp" />
+    <ClCompile Include="AddCommand.cpp" />
     <ClCompile Include="configManager.cpp" />
     <ClCompile Include="ConsoleManager.cpp" />
     <ClCompile Include="CPUWorker.cpp" />
+    <ClCompile Include="DeclareCommand.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainMenuConsole.cpp" />
+    <ClCompile Include="PrintCommand.cpp" />
     <ClCompile Include="Process.cpp" />
     <ClCompile Include="ProcessScheduler.cpp" />
+    <ClCompile Include="SleepCommand.cpp" />
+    <ClCompile Include="SubtractCommand.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ACommand.h" />
     <ClInclude Include="AConsole.h" />
+    <ClInclude Include="AddCommand.h" />
     <ClInclude Include="configManager.h" />
     <ClInclude Include="ConsoleManager.h" />
     <ClInclude Include="CPUWorker.h" />
+    <ClInclude Include="DeclareCommand.h" />
     <ClInclude Include="MainMenuConsole.h" />
+    <ClInclude Include="PrintCommand.h" />
     <ClInclude Include="Process.h" />
     <ClInclude Include="ProcessScheduler.h" />
+    <ClInclude Include="SleepCommand.h" />
+    <ClInclude Include="SubtractCommand.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

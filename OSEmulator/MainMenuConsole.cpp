@@ -36,6 +36,7 @@ void MainMenuConsole::processInput() {
             std::cout << "\r" << std::left << std::setw(consoleWidth - 1) << cleanPrompt;
 
             if (currentInput == "exit") {
+                ProcessScheduler::getInstance()->stop();
                 running = false;
                 std::cout << "\n";
             }

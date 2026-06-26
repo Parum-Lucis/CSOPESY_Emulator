@@ -13,11 +13,7 @@ Process::Process(size_t id, std::string  processName, size_t lines)
 
 void Process::executeNextInstruction() {
     if (currentLine < totalLines && state == ProcessState::RUNNING) {
-
-        // ADDED: Safety check to prevent out-of-bounds vector access
-        if (currentLine < commandList.size() && commandList[currentLine] != nullptr) {
-            commandList[currentLine]->execute();
-        }
+        commandList[currentLine]->execute();
 
         // We still increment the line so the simulation progresses
         currentLine++;
@@ -58,6 +54,14 @@ std::string Process::generateTimestamp() {
     std::ostringstream oss;
     oss << "(" << std::put_time(&tm, "%m/%d/%Y %I:%M:%S%p") << ")";
     return oss.str();
+}
+
+void Process::addCommand(std::shared_ptr<ACommand> command) {
+    commandList.push_back(command);
+}
+
+std::unordered_map<std::string, uint16_t>& Process::getLocalMemory() {
+    return localMemory;
 }
 
 // --- NEW ADDITION FOR TESTING ---
