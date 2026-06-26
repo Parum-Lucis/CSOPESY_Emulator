@@ -19,7 +19,10 @@ void ConsoleManager::switchConsole(const std::string& name) {
     if (it != consoleRegistry.end()) {
         // Instantiate the new console and push it to the stack.
         // The previous console is safely suspended right beneath it on the stack.
-        consoleStack.push(it->second());
+        std::shared_ptr<AConsole> newConsole = it->second();
+        if (newConsole) {
+            consoleStack.push(newConsole);
+        }
     }
 }
 

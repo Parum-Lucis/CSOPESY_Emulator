@@ -15,15 +15,11 @@ Process::Process(size_t id, std::string  processName, size_t lines)
 
 void Process::executeNextInstruction() {
     if (currentLine < totalLines && state == ProcessState::RUNNING) {
-<<<<<<< HEAD
 
-        // 1. Execute the command
+        // 1. Execute the command (Kept safety checks from HEAD to prevent crashes)
         if (currentLine < commandList.size() && commandList[currentLine] != nullptr) {
             commandList[currentLine]->execute();
         }
-=======
-        commandList[currentLine]->execute();
->>>>>>> 7409b7d22e3f2c71cf0c1e6c4ef6fa39d5e09a27
 
         // 2. GENERATE LOG HERE (It must be before the finish check!)
         std::stringstream ss;

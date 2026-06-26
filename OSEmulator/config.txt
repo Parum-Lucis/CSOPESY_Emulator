@@ -3,9 +3,5 @@ scheduler "rr"
 quantum-cycles 5
 batch-process-freq 1
 min-ins 1000
-<<<<<<< HEAD
 max-ins 2000
-=======
-max-ins 20000
->>>>>>> 04243e26cd0f9867a751985809ebaf97117b4ce3
 delay-per-exec 0
