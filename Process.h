@@ -17,8 +17,13 @@ class Process {
 public:
     Process(size_t id, std::string  processName, size_t lines);
 
+    std::unordered_map<std::string, uint16_t>& getMemoryMap() { return localMemory; }
     void executeNextInstruction();
     void printProcessSMI() const;
+
+    void addCommand(std::shared_ptr<ACommand> command) {
+        commandList.push_back(command);
+    }
 
     [[nodiscard]] std::string getName() const;
     [[nodiscard]] size_t getPID() const { return pid; }
