@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="OSEmulator.vcxproj" Id="222f23a9-980f-475b-8292-1cb919cd568d" />
+</Solution>

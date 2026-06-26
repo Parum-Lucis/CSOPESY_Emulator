@@ -1,0 +1,92 @@
+{
+	"bmi-installation" : null,
+	"compiler-frontend-variant" : "MSVC",
+	"compiler-id" : "MSVC",
+	"compiler-simulate-id" : "",
+	"config" : "Debug",
+	"cxx-modules" : {},
+	"database-info" : null,
+	"dir-cur-bld" : "C:/Users/Luis Andrew/source/repos/CSOPESY_Emulator/out/build/x64-Debug",
+	"dir-cur-src" : "C:/Users/Luis Andrew/source/repos/CSOPESY_Emulator",
+	"dir-top-bld" : "C:/Users/Luis Andrew/source/repos/CSOPESY_Emulator/out/build/x64-Debug",
+	"dir-top-src" : "C:/Users/Luis Andrew/source/repos/CSOPESY_Emulator",
+	"exports" : [],
+	"forward-modules-from-target-dirs" : [],
+	"include-dirs" : [],
+	"language" : "CXX",
+	"linked-target-dirs" : [],
+	"module-dir" : "C:/Users/Luis Andrew/source/repos/CSOPESY_Emulator/out/build/x64-Debug/CMakeFiles/CSOPESY_Emulator.dir",
+	"sources" : 
+	{
+		"CMakeFiles/CSOPESY_Emulator.dir/CPUWorker.cpp.obj" : 
+		{
+			"language" : "CXX",
+			"source" : "C:/Users/Luis Andrew/source/repos/CSOPESY_Emulator/CPUWorker.cpp"
+		},
+		"CMakeFiles/CSOPESY_Emulator.dir/Command/ACommand.cpp.obj" : 
+		{
+			"language" : "CXX",
+			"source" : "C:/Users/Luis Andrew/source/repos/CSOPESY_Emulator/Command/ACommand.cpp"
+		},
+		"CMakeFiles/CSOPESY_Emulator.dir/Command/AddCommand.cpp.obj" : 
+		{
+			"language" : "CXX",
+			"source" : "C:/Users/Luis Andrew/source/repos/CSOPESY_Emulator/Command/AddCommand.cpp"
+		},
+		"CMakeFiles/CSOPESY_Emulator.dir/Command/DeclareCommand.cpp.obj" : 
+		{
+			"language" : "CXX",
+			"source" : "C:/Users/Luis Andrew/source/repos/CSOPESY_Emulator/Command/DeclareCommand.cpp"
+		},
+		"CMakeFiles/CSOPESY_Emulator.dir/Command/PrintCommand.cpp.obj" : 
+		{
+			"language" : "CXX",
+			"source" : "C:/Users/Luis Andrew/source/repos/CSOPESY_Emulator/Command/PrintCommand.cpp"
+		},
+		"CMakeFiles/CSOPESY_Emulator.dir/Command/SleepCommand.cpp.obj" : 
+		{
+			"language" : "CXX",
+			"source" : "C:/Users/Luis Andrew/source/repos/CSOPESY_Emulator/Command/SleepCommand.cpp"
+		},
+		"CMakeFiles/CSOPESY_Emulator.dir/Command/SubtractCommand.cpp.obj" : 
+		{
+			"language" : "CXX",
+			"source" : "C:/Users/Luis Andrew/source/repos/CSOPESY_Emulator/Command/SubtractCommand.cpp"
+		},
+		"CMakeFiles/CSOPESY_Emulator.dir/Console/MainMenuConsole.cpp.obj" : 
+		{
+			"language" : "CXX",
+			"source" : "C:/Users/Luis Andrew/source/repos/CSOPESY_Emulator/Console/MainMenuConsole.cpp"
+		},
+		"CMakeFiles/CSOPESY_Emulator.dir/Console/SchedulingConsole.cpp.obj" : 
+		{
+			"language" : "CXX",
+			"source" : "C:/Users/Luis Andrew/source/repos/CSOPESY_Emulator/Console/SchedulingConsole.cpp"
+		},
+		"CMakeFiles/CSOPESY_Emulator.dir/OSEmulator.cpp.obj" : 
+		{
+			"language" : "CXX",
+			"source" : "C:/Users/Luis Andrew/source/repos/CSOPESY_Emulator/OSEmulator.cpp"
+		},
+		"CMakeFiles/CSOPESY_Emulator.dir/Process.cpp.obj" : 
+		{
+			"language" : "CXX",
+			"source" : "C:/Users/Luis Andrew/source/repos/CSOPESY_Emulator/Process.cpp"
+		},
+		"CMakeFiles/CSOPESY_Emulator.dir/ProcessScheduler.cpp.obj" : 
+		{
+			"language" : "CXX",
+			"source" : "C:/Users/Luis Andrew/source/repos/CSOPESY_Emulator/ProcessScheduler.cpp"
+		},
+		"CMakeFiles/CSOPESY_Emulator.dir/configManager.cpp.obj" : 
+		{
+			"language" : "CXX",
+			"source" : "C:/Users/Luis Andrew/source/repos/CSOPESY_Emulator/configManager.cpp"
+		},
+		"CMakeFiles/CSOPESY_Emulator.dir/quattro.cpp.obj" : 
+		{
+			"language" : "CXX",
+			"source" : "C:/Users/Luis Andrew/source/repos/CSOPESY_Emulator/quattro.cpp"
+		}
+	}
+}
