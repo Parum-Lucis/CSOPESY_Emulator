@@ -1,6 +1,11 @@
 #include "ProcessScheduler.h"
 #include "ConfigManager.h"
 #include "PrintCommand.h"
+#include "AddCommand.h"
+#include "SubtractCommand.h"
+#include "DeclareCommand.h"
+#include "SleepCommand.h"
+#include <vector>
 #include <iostream>
 #include <fstream>
 #include <chrono>
@@ -61,20 +66,64 @@ void ProcessScheduler::requeueProcess(const std::shared_ptr<Process>& process) {
     }
 }
 
-
 void ProcessScheduler::toggleDummyGeneration(bool state) {
     isGeneratingDummy = state;
 }
 
+#include <random> // Ensure this is at the top of your file!
+
 static void ProcessScheduler::generateDummyProcess(const std::shared_ptr<Process>& newProcess, size_t totalInstructions) {
-    for (int i = 0; i < totalInstructions; i++) {
-        std::string dummyOutput = "Executing line " + std::to_string(i + 1);
+    std::vector<std::string> dummyVars = {"A", "B", "C", "X", "Y"};
 
-        std::shared_ptr<ACommand> newCmd = std::make_shared<PrintCommand>(
-            newProcess->getMemoryMap(), dummyOutput
-        );
+    std::random_device rd;
+    std::mt19937 gen(rd());
 
-        newProcess->addCommand(newCmd);
+    std::uniform_int_distribution<int> cmdDist(0, 4);
+    std::uniform_int_distribution<size_t> varDist(0, dummyVars.size() - 1);
+    std::uniform_int_distribution<int> valDist(0, 99);
+
+    for (size_t i = 0; i < totalInstructions; i++) {
+        int cmdType = cmdDist(gen);
+
+        std::shared_ptr<ACommand> newCmd = nullptr;
+
+        std::string randVar1 = dummyVars[varDist(gen)];
+        std::string randVar2 = dummyVars[varDist(gen)];
+        std::string randVal = std::to_string(valDist(gen));
+
+        switch (cmdType) {
+            case 0:
+                newCmd = std::make_shared<DeclareCommand>(
+                    newProcess->getMemoryMap(), randVar1, randVal
+                );
+                break;
+
+            case 1:
+                newCmd = std::make_shared<AddCommand>(
+                    newProcess->getMemoryMap(), randVar1, randVar1, randVal
+                );
+                break;
+
+            case 2:
+                newCmd = std::make_shared<SubtractCommand>(
+                    newProcess->getMemoryMap(), randVar1, randVar1, randVal
+                );
+                break;
+
+            case 3:
+                newCmd = std::make_shared<PrintCommand>(
+                    newProcess->getMemoryMap(), randVar1
+                );
+                break;
+
+            case 4:
+                newCmd = std::make_shared<SleepCommand>("10");
+                break;
+        }
+
+        if (newCmd != nullptr) {
+            newProcess->addCommand(newCmd);
+        }
     }
 }
 
