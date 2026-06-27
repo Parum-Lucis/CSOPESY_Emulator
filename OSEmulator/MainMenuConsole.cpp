@@ -185,9 +185,28 @@ void MainMenuConsole::processInput() {
                         }
                     }
                     else if (currentInput.length() >= 10 && currentInput.substr(0, 10) == "screen -s ") {
-                        auto processList = ProcessScheduler::getInstance()->getAllProcesses();
                         std::string processName = currentInput.substr(10);
 
+                        // Trim trailing whitespace characters to prevent name mismatches
+                        processName.erase(processName.find_last_not_of(" \n\r\t") + 1);
+
+                        // Call the thread-safe scheduler method
+                        bool success = ProcessScheduler::getInstance()->createManualProcess(processName);
+
+                        if (!success) {
+                            responseStr = "Error: Process '" + processName + "' already exists.";
+                        }
+                        else {
+                            responseStr = "Command Recognized: screen -s " + processName + "\n";
+                            responseStr += "=> New process '" + processName + "' successfully added to the ready queue!";
+                        }
+                        }
+                    else if (currentInput.length() >= 10 && currentInput.substr(0, 10) == "screen -r ") {
+                        std::string processName = currentInput.substr(10);
+
+
+                        // Fetch all processes and find the one that matches the requested name
+                        auto processList = ProcessScheduler::getInstance()->getAllProcesses();
                         auto it = std::find_if(processList.begin(), processList.end(),
                             [&processName](const std::shared_ptr<Process>& procPtr) {
                                 return procPtr && procPtr->getName() == processName;
@@ -201,66 +220,28 @@ void MainMenuConsole::processInput() {
                                 responseStr = "Process " + processName + " has already finished.";
                             }
                             else {
-                                // 1. Register the new sub-console
+
+                                // Register the sub-console (overwriting the old lambda is perfectly safe)
                                 ConsoleManager::getInstance()->registerConsole(screenName, [targetProcess]() {
                                     return std::make_shared<ProcessConsole>(targetProcess);
                                     });
 
-                                // 2. Clear out the Main Menu state variables completely
+                                // Clear out the Main Menu state variables completely
                                 this->lastCommandOutput = "";
                                 this->currentInput = "";
 
-                                // 3. Clear the old main menu artifacts off the terminal completely
+                                // Clear the screen and switch
                                 system("cls");
-
-                                // 4. Switch the global pointer to your new ProcessConsole view
                                 ConsoleManager::getInstance()->switchConsole(screenName);
-
-                                // 5. Force an immediate draw call of the NEW console right here 
-                                // to override the main loop's frame cycle
                                 ConsoleManager::getInstance()->drawConsole();
 
-                                return; // Halt further main menu input parsing instantly
+                                return;
                             }
-                        }
-                        else {
-                            responseStr = "Process " + processName + " not found.";
-                        }
-                    }
-                    else if (currentInput.length() >= 10 && currentInput.substr(0, 10) == "screen -r ") {
-                        std::string processName = currentInput.substr(10);
-
-                        // Fetch all processes and find the one that matches the requested name
-                        auto processList = ProcessScheduler::getInstance()->getAllProcesses();
-                        auto it = std::find_if(processList.begin(), processList.end(),
-                            [&processName](const std::shared_ptr<Process>& procPtr) {
-                                return procPtr && procPtr->getName() == processName;
-                            });
-
-                        if (it != processList.end()) {
-                            std::shared_ptr<Process> targetProcess = *it;
-                            std::string screenName = "screen_" + processName;
-
-                            // Register the sub-console (overwriting the old lambda is perfectly safe)
-                            ConsoleManager::getInstance()->registerConsole(screenName, [targetProcess]() {
-                                return std::make_shared<ProcessConsole>(targetProcess);
-                                });
-
-                            // Clear out the Main Menu state variables completely
-                            this->lastCommandOutput = "";
-                            this->currentInput = "";
-
-                            // Clear the screen and switch
-                            system("cls");
-                            ConsoleManager::getInstance()->switchConsole(screenName);
-                            ConsoleManager::getInstance()->drawConsole();
-
-                            return; // Halt further main menu input parsing instantly
                         }
                         else {
                             responseStr = "Error: Process '" + processName + "' not found.";
                         }
-                        }
+                    }
                 }
 
                 lastCommandOutput = responseStr;

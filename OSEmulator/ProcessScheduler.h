@@ -17,6 +17,7 @@ public:
     void stop();
 
     void addProcess(const std::shared_ptr<Process>& process);
+    bool createManualProcess(const std::string& processName);
     std::shared_ptr<Process> fetchNextProcess();
     void requeueProcess(const std::shared_ptr<Process>& process);
 
