@@ -13,6 +13,9 @@ class ProcessScheduler {
 public:
     static ProcessScheduler* getInstance();
 
+    ProcessScheduler(const ProcessScheduler&) = delete;
+    ProcessScheduler& operator=(const ProcessScheduler&) = delete;
+
     void start();
     void stop();
 
@@ -39,13 +42,13 @@ private:
     std::vector<std::shared_ptr<CPU>> cpuWorkers{};
 
     std::thread generatorThread;
+    std::thread schedulerThread;
 
     std::atomic<bool> isRunning;
     std::atomic<bool> isGeneratingDummy;
 
-    std::thread schedulerThread;
     void schedulerLoop();
-    
     void dummyGenerationLoop();
+
     static void generateDummyProcess(const std::shared_ptr<Process>& newProcess, size_t totalInstructions);
 };

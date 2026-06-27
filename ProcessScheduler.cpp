@@ -27,8 +27,25 @@ void ProcessScheduler::start() {
     }
 
     generatorThread = std::thread(&ProcessScheduler::dummyGenerationLoop, this);
-
     schedulerThread = std::thread(&ProcessScheduler::schedulerLoop, this);
+}
+
+void ProcessScheduler::stop() {
+    isRunning = false;
+    isGeneratingDummy = false;
+
+    if (generatorThread.joinable()) {
+        generatorThread.join();
+    }
+
+    if (schedulerThread.joinable()) {
+        schedulerThread.join();
+    }
+
+    for (auto& cpu : cpuWorkers) {
+        cpu->stop();
+    }
+    cpuWorkers.clear();
 }
 
 void ProcessScheduler::schedulerLoop() {
@@ -52,25 +69,6 @@ void ProcessScheduler::schedulerLoop() {
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-}
-
-
-void ProcessScheduler::stop() {
-    isRunning = false;
-    isGeneratingDummy = false;
-
-    if (generatorThread.joinable()) {
-        generatorThread.join();
-    }
-
-    if (schedulerThread.joinable()) {
-        schedulerThread.join();
-    }
-
-    for (auto& cpu : cpuWorkers) {
-        cpu->stop();
-    }
-    cpuWorkers.clear();
 }
 
 void ProcessScheduler::addProcess(const std::shared_ptr<Process>& process) {
@@ -108,17 +106,83 @@ void ProcessScheduler::toggleDummyGeneration(bool state) {
     isGeneratingDummy = state;
 }
 
-static void ProcessScheduler::generateDummyProcess(const std::shared_ptr<Process>& newProcess, size_t totalInstructions) {
+static size_t generateRecursiveForLoop(const std::shared_ptr<Process>& process,
+                                       int repeats,
+                                       size_t currentInstructionCount,
+                                       size_t maxInstructions,
+                                       int currentDepth,
+                                       std::mt19937& gen,
+                                       const std::vector<std::string>& dummyVars) {
+
+    if (repeats <= 0 || currentDepth > 3 || currentInstructionCount >= maxInstructions) {
+        return 0;
+    }
+
+    size_t instructionsAddedThisLoop = 0;
+
+    std::uniform_int_distribution<int> cmdDist(0, 5);
+    std::uniform_int_distribution<size_t> varDist(0, dummyVars.size() - 1);
+    std::uniform_int_distribution<int> valDist(0, 99);
+    std::uniform_int_distribution<int> nestedLoopDist(2, 4);
+
+    for (int i = 0; i < repeats; ++i) {
+        if (currentInstructionCount + instructionsAddedThisLoop >= maxInstructions) {
+            break;
+        }
+
+        int innerCmdType = cmdDist(gen);
+        std::shared_ptr<ACommand> newCmd = nullptr;
+
+        std::string randVar1 = dummyVars[varDist(gen)];
+        std::string randVar2 = dummyVars[varDist(gen)];
+        std::string randVal = std::to_string(valDist(gen));
+
+        if (innerCmdType == 5 && currentDepth < 3) {
+            int nestedRepeats = nestedLoopDist(gen);
+
+            size_t nestedAdded = generateRecursiveForLoop(
+                process, nestedRepeats,
+                currentInstructionCount + instructionsAddedThisLoop,
+                maxInstructions, currentDepth + 1, gen, dummyVars
+            );
+
+            instructionsAddedThisLoop += nestedAdded;
+
+        } else {
+            if (innerCmdType == 5) innerCmdType = 3;
+
+            switch (innerCmdType) {
+                case 0: newCmd = std::make_shared<DeclareCommand>(process->getLocalMemory(), randVar1, randVal); break;
+                case 1: newCmd = std::make_shared<AddCommand>(process->getLocalMemory(), randVar1, randVar1, randVal); break;
+                case 2: newCmd = std::make_shared<SubtractCommand>(process->getLocalMemory(), randVar1, randVar1, randVal); break;
+                case 3: newCmd = std::make_shared<PrintCommand>(process->getLocalMemory(), randVar1); break;
+                case 4: newCmd = std::make_shared<SleepCommand>(process, "10"); break;
+            }
+
+            if (newCmd != nullptr) {
+                process->addCommand(newCmd);
+                instructionsAddedThisLoop++;
+            }
+        }
+    }
+
+    return instructionsAddedThisLoop;
+}
+
+void ProcessScheduler::generateDummyProcess(const std::shared_ptr<Process>& newProcess, size_t totalInstructions) {
     std::vector<std::string> dummyVars = {"A", "B", "C", "X", "Y"};
 
     std::random_device rd;
     std::mt19937 gen(rd());
 
-    std::uniform_int_distribution<int> cmdDist(0, 4);
+    std::uniform_int_distribution<int> cmdDist(0, 5);
     std::uniform_int_distribution<size_t> varDist(0, dummyVars.size() - 1);
     std::uniform_int_distribution<int> valDist(0, 99);
+    std::uniform_int_distribution<int> loopDist(3, 8);
 
-    for (size_t i = 0; i < totalInstructions; i++) {
+    size_t instructionsAdded = 0;
+
+    while (instructionsAdded < totalInstructions) {
         int cmdType = cmdDist(gen);
 
         std::shared_ptr<ACommand> newCmd = nullptr;
@@ -129,35 +193,38 @@ static void ProcessScheduler::generateDummyProcess(const std::shared_ptr<Process
 
         switch (cmdType) {
             case 0:
-                newCmd = std::make_shared<DeclareCommand>(
-                    newProcess->getLocalMemory(), randVar1, randVal
-                );
+                newCmd = std::make_shared<DeclareCommand>(newProcess->getLocalMemory(), randVar1, randVal);
+                instructionsAdded++;
                 break;
-
             case 1:
-                newCmd = std::make_shared<AddCommand>(
-                    newProcess->getLocalMemory(), randVar1, randVar1, randVal
-                );
+                newCmd = std::make_shared<AddCommand>(newProcess->getLocalMemory(), randVar1, randVar1, randVal);
+                instructionsAdded++;
                 break;
-
             case 2:
-                newCmd = std::make_shared<SubtractCommand>(
-                    newProcess->getLocalMemory(), randVar1, randVar1, randVal
-                );
+                newCmd = std::make_shared<SubtractCommand>(newProcess->getLocalMemory(), randVar1, randVar1, randVal);
+                instructionsAdded++;
                 break;
-
             case 3:
-                newCmd = std::make_shared<PrintCommand>(
-                    newProcess->getLocalMemory(), randVar1
-                );
+                newCmd = std::make_shared<PrintCommand>(newProcess->getLocalMemory(), randVar1);
+                instructionsAdded++;
                 break;
-
             case 4:
-                newCmd = std::make_shared<SleepCommand>("10");
+                newCmd = std::make_shared<SleepCommand>(newProcess, "10");
+                instructionsAdded++;
                 break;
+            case 5: {
+                int repeats = loopDist(gen);
+
+                size_t added = generateRecursiveForLoop(
+                    newProcess, repeats, instructionsAdded, totalInstructions, 1, gen, dummyVars
+                );
+
+                instructionsAdded += added;
+                break;
+            }
         }
 
-        if (newCmd != nullptr) {
+        if (newCmd != nullptr && cmdType != 5) {
             newProcess->addCommand(newCmd);
         }
     }
