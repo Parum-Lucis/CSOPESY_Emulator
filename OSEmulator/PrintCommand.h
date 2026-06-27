@@ -12,6 +12,10 @@ public:
 
     void execute() override;
 
+    std::string getPrintValue() const {
+        return this->target;
+    }
+
 private:
     std::unordered_map<std::string, uint16_t>& localMemory;
     std::string target;

@@ -122,7 +122,7 @@ void ProcessScheduler::generateDummyProcess(const std::shared_ptr<Process>& newP
 
         case 3:
             newCmd = std::make_shared<PrintCommand>(
-                newProcess->getLocalMemory(), randVar1
+                newProcess->getLocalMemory(), "Hello world from " + newProcess->getName()
             );
             break;
 

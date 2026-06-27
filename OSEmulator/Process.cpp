@@ -1,4 +1,5 @@
 #include "Process.h"
+#include "PrintCommand.h"
 #include <iostream>
 #include <ctime>
 #include <iomanip>
@@ -15,16 +16,26 @@ Process::Process(size_t id, std::string  processName, size_t lines)
 
 void Process::executeNextInstruction() {
     if (currentLine < totalLines && state == ProcessState::RUNNING) {
-
+        bool isPrintCommand = false;
+        std::string printedValue = "";
         // 1. Execute the command (Kept safety checks from HEAD to prevent crashes)
         if (currentLine < commandList.size() && commandList[currentLine] != nullptr) {
             commandList[currentLine]->execute();
+            
+            auto printCmd = std::dynamic_pointer_cast<PrintCommand>(commandList[currentLine]);
+            if (printCmd != nullptr) {
+                isPrintCommand = true;
+                printedValue = printCmd->getPrintValue(); // Capture the specific print value!
+            }
         }
 
         // 2. GENERATE LOG HERE (It must be before the finish check!)
-        std::stringstream ss;
-        ss << "Core: " << coreAssigned << " executed line: " << currentLine + 1 << " / " << totalLines;
-        addLog(ss.str());
+       if (isPrintCommand) {
+            std::stringstream ss;
+            ss << "Core: " << coreAssigned 
+               << " \"" << printedValue << "\""; // Appends the print value securely
+            addLog(ss.str());
+        }
 
         // 3. Increment the line
         currentLine++;
@@ -37,7 +48,7 @@ void Process::executeNextInstruction() {
     }
 }
 
-void Process::printProcessSMI(const std::string& currentInput, int consoleWidth) const {
+std::string Process::getProcessSMI(const std::string& currentInput, int consoleWidth) const {
     // 1. Build the ENTIRE output block first in memory so background threads don't interrupt it
     std::stringstream output;
 
@@ -66,14 +77,8 @@ void Process::printProcessSMI(const std::string& currentInput, int consoleWidth)
     }
 
     // 4. Print the entire block to the console at once, naturally scrolling the screen down
-    std::cout << output.str();
+    return output.str();
 
-    // 5. Draw the prompt on a fresh new line
-    std::string prompt = "root:\\> " + currentInput;
-
-    // We only use \r here to ensure the user's typing cursor is positioned correctly 
-    // at the end of the prompt on this brand new line.
-    std::cout << "\r" << prompt;
 }
 
 std::string Process::getName() const {

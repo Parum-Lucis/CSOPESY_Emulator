@@ -3,6 +3,7 @@
 #include "Process.h"
 #include <memory>
 #include <string>
+#include <vector>
 
 class ProcessConsole : public AConsole {
 public:
@@ -14,8 +15,11 @@ public:
     void drawConsole() const override;
     bool isRunning() const override;
 
+    void printDashboard() const;
+
 private:
     std::shared_ptr<Process> attachedProcess;
+    std::vector<std::string> capturedLogs;
     bool running;
     std::string currentInput;
     int consoleWidth = 80;

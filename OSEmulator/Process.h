@@ -19,7 +19,7 @@ public:
 
     std::unordered_map<std::string, uint16_t>& getLocalMemory();
     void executeNextInstruction();
-    void printProcessSMI(const std::string& currentInput, int consoleWidth) const;
+    std::string getProcessSMI(const std::string& currentInput, int consoleWidth) const;
     void addLog(const std::string& message);
 
     void addCommand(std::shared_ptr<ACommand> command);

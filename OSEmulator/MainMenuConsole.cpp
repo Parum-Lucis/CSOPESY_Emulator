@@ -197,8 +197,36 @@ void MainMenuConsole::processInput() {
                             responseStr = "Error: Process '" + processName + "' already exists.";
                         }
                         else {
-                            responseStr = "Command Recognized: screen -s " + processName + "\n";
-                            responseStr += "=> New process '" + processName + "' successfully added to the ready queue!";
+                            // Find the newly created process from the scheduler to attach to the console view
+                            auto processList = ProcessScheduler::getInstance()->getAllProcesses();
+                            auto it = std::find_if(processList.begin(), processList.end(),
+                                [&processName](const std::shared_ptr<Process>& procPtr) {
+                                    return procPtr && procPtr->getName() == processName;
+                                });
+
+                            if (it != processList.end()) {
+                                std::shared_ptr<Process> targetProcess = *it;
+                                std::string screenName = "screen_" + processName;
+
+                                // Register the sub-console for this new process
+                                ConsoleManager::getInstance()->registerConsole(screenName, [targetProcess]() {
+                                    return std::make_shared<ProcessConsole>(targetProcess);
+                                    });
+
+                                // Clear out the Main Menu state variables completely
+                                this->lastCommandOutput = "";
+                                this->currentInput = "";
+
+                                // Clear the terminal screen and instantly switch the view
+                                system("cls");
+                                ConsoleManager::getInstance()->switchConsole(screenName);
+                                ConsoleManager::getInstance()->drawConsole();
+
+                                return; // Exit out immediately to hand control over to the new sub-console
+                            }
+                            else {
+                                responseStr = "Error: Process was created but could not be resolved in the tracking list.";
+                            }
                         }
                         }
                     else if (currentInput.length() >= 10 && currentInput.substr(0, 10) == "screen -r ") {
