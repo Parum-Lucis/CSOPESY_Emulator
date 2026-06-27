@@ -19,7 +19,8 @@ public:
 
     std::unordered_map<std::string, uint16_t>& getLocalMemory();
     void executeNextInstruction();
-    void printProcessSMI() const;
+    std::string getProcessSMI(const std::string& currentInput, int consoleWidth) const;
+    void addLog(const std::string& message);
 
     void addCommand(std::shared_ptr<ACommand> command);
 
@@ -31,6 +32,7 @@ public:
     void setState(ProcessState newState) { state = newState; }
     [[nodiscard]] std::string getCreationTime() const { return creationTime; }
     [[nodiscard]] int getCoreAssigned() const { return coreAssigned; }
+    [[nodiscard]] const std::vector<std::string>& getLogs() const { return logs; }
 
     void setSleepTicks(int duration);
     int getSleepTicks() const;
@@ -52,6 +54,7 @@ private:
     size_t currentLine;
     size_t totalLines;
     std::string creationTime;
+    std::vector<std::string> logs;
 
     std::unordered_map<std::string, uint16_t> localMemory;
     std::vector<std::shared_ptr<ACommand>> commandList{};

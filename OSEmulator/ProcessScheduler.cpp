@@ -197,7 +197,7 @@ static size_t generateRecursiveForLoop(const std::shared_ptr<Process>& process,
                 case 0: newCmd = std::make_shared<DeclareCommand>(process->getLocalMemory(), randVar1, randVal); break;
                 case 1: newCmd = std::make_shared<AddCommand>(process->getLocalMemory(), randVar1, randVar1, randVal); break;
                 case 2: newCmd = std::make_shared<SubtractCommand>(process->getLocalMemory(), randVar1, randVar1, randVal); break;
-                case 3: newCmd = std::make_shared<PrintCommand>(process->getLocalMemory(), randVar1); break;
+                case 3: newCmd = std::make_shared<PrintCommand>(process->getLocalMemory(), "Hello world from " + process->getName()); break;
                 case 4: newCmd = std::make_shared<SleepCommand>(process, "10"); break;
                 }
 
@@ -273,7 +273,7 @@ void ProcessScheduler::generateDummyProcess(const std::shared_ptr<Process>& newP
 
         case 3:
             newCmd = std::make_shared<PrintCommand>(
-                newProcess->getLocalMemory(), randVar1
+                newProcess->getLocalMemory(), "Hello world from " + newProcess->getName()
             );
             instructionsAdded++;
             break;
@@ -386,4 +386,56 @@ size_t ProcessScheduler::getCoresUsed() const {
     }
 
     return count;
+}
+
+bool ProcessScheduler::createManualProcess(const std::string& processName) {
+    std::lock_guard<std::mutex> lock(statsMutex);
+
+    // 1. Ensure the process name is unique
+    for (const auto& proc : allProcessList) {
+        if (proc && proc->getName() == processName) {
+            return false;
+        }
+    }
+
+    // 2. Ensure CPU cores are ACTUALLY spawned and running to process this manual request!
+    // (This fixes the issue if the user hasn't run the global start() command yet)
+    if (cpuWorkers.empty()) {
+        uint32_t numCPUs = ConfigManager::getInstance()->getNumCPU();
+        for (uint32_t i = 0; i < numCPUs; ++i) {
+            auto cpu = std::make_shared<CPU>(i);
+            cpu->start();
+            cpuWorkers.push_back(cpu);
+        }
+    }
+
+    // 3. Determine random instruction counts safely matching config limits
+    uint32_t minIns = ConfigManager::getInstance()->getMinIns();
+    uint32_t maxIns = ConfigManager::getInstance()->getMaxIns();
+    uint32_t safeMin = minIns > 0 ? minIns : 100;
+    uint32_t safeMax = maxIns >= safeMin ? maxIns : safeMin;
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<size_t> distrib(safeMin, safeMax);
+    size_t totalInstructions = distrib(gen);
+
+    // 4. Instantiate the process shell
+    auto newProcess = std::make_shared<Process>(globalProcessCounter, processName, totalInstructions);
+
+    // 5. Generate commands and track stats
+    generateDummyProcess(newProcess, totalInstructions);
+
+    if (!firstProcess) {
+        firstProcess = newProcess;
+    }
+    latestProcess = newProcess;
+    allProcessList.push_back(newProcess);
+
+    globalProcessCounter++;
+
+    // 6. Push to ready queue—now a live CPU core thread will instantly grab it!
+    addProcess(newProcess);
+
+    return true;
 }

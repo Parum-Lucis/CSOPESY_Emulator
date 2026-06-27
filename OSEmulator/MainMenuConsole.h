@@ -7,6 +7,7 @@ private:
     bool running;
     bool initialized; // Constraint 1: Track if "initialize" has been called
     std::string currentInput;
+	std::string lastCommandOutput; // Store the last command's output for display
 
     const int consoleWidth = 120;
 

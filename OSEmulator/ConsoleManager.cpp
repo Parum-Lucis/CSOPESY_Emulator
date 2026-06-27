@@ -19,7 +19,10 @@ void ConsoleManager::switchConsole(const std::string& name) {
     if (it != consoleRegistry.end()) {
         // Instantiate the new console and push it to the stack.
         // The previous console is safely suspended right beneath it on the stack.
-        consoleStack.push(it->second());
+        std::shared_ptr<AConsole> newConsole = it->second();
+        if (newConsole) {
+            consoleStack.push(newConsole);
+        }
     }
 }
 
@@ -50,9 +53,16 @@ void ConsoleManager::processInput() {
     if (!currentConsole->isRunning()) {
         consoleStack.pop();
 
+        currentConsole.reset();
+
         // If exiting that console leaves us with nothing, shut down the manager.
         if (consoleStack.empty()) {
             managerRunning = false;
+        }
+        else {
+            // FIX: Force an immediate draw of the newly surfaced console (MainMenuConsole)
+            // This prevents the screen from remaining blank for a frame.
+            consoleStack.top()->drawConsole();
         }
     }
 }

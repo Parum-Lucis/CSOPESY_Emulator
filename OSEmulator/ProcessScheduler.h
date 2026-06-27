@@ -41,6 +41,8 @@ public:
     void initializeSystem();
     void shutdownSystem();
     void moveToWaitQueue(const std::shared_ptr<Process>& process);
+
+    bool createManualProcess(const std::string& processName);
 private:
     ProcessScheduler() : isRunning(false) {}
     ~ProcessScheduler() = default;

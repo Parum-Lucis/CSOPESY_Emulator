@@ -1,9 +1,12 @@
 #include "Process.h"
+#include "PrintCommand.h"
 #include <iostream>
 #include <ctime>
 #include <iomanip>
 #include <sstream>
 #include <utility>
+#include <windows.h>
+#include <iomanip>
 
 Process::Process(size_t id, std::string  processName, size_t lines)
     : pid(id), name(std::move(processName)), state(ProcessState::READY), coreAssigned(-1), currentLine(0), totalLines(lines)
@@ -13,28 +16,69 @@ Process::Process(size_t id, std::string  processName, size_t lines)
 
 void Process::executeNextInstruction() {
     if (currentLine < totalLines && state == ProcessState::RUNNING) {
-        commandList[currentLine]->execute();
+        bool isPrintCommand = false;
+        std::string printedValue = "";
+        // 1. Execute the command (Kept safety checks from HEAD to prevent crashes)
+        if (currentLine < commandList.size() && commandList[currentLine] != nullptr) {
+            commandList[currentLine]->execute();
 
-        // We still increment the line so the simulation progresses
+            auto printCmd = std::dynamic_pointer_cast<PrintCommand>(commandList[currentLine]);
+            if (printCmd != nullptr) {
+                isPrintCommand = true;
+                printedValue = printCmd->getPrintValue(); // Capture the specific print value!
+            }
+        }
+
+        // 2. GENERATE LOG HERE (It must be before the finish check!)
+        if (isPrintCommand) {
+            std::stringstream ss;
+            ss << "Core: " << coreAssigned
+                << " \"" << printedValue << "\""; // Appends the print value securely
+            addLog(ss.str());
+        }
+
+        // 3. Increment the line
         currentLine++;
 
+        // 4. Check if finished
         if (currentLine >= totalLines) {
             state = ProcessState::FINISHED;
+            addLog("Process finished execution."); // This one ONLY prints at the end
         }
     }
 }
 
-void Process::printProcessSMI() const {
-    // TODO ADD CORRECT PRINT PROCESS SMI;
-    std::cout << "Process name: " << name << "\n";
-    std::cout << "ID: " << pid << "\n\n";
+std::string Process::getProcessSMI(const std::string& currentInput, int consoleWidth) const {
+    // 1. Build the ENTIRE output block first in memory so background threads don't interrupt it
+    std::stringstream output;
 
-    if (state == ProcessState::FINISHED) {
-        std::cout << "Finished!\n";
-    } else {
-        std::cout << "Current instruction line: " << currentLine << "\n";
-        std::cout << "Lines of code: " << totalLines << "\n";
+    // Add a couple of newlines to separate it from the previous history cleanly
+    output << "\n\n";
+    output << "Process name: " << name << "\n";
+    output << "ID: " << pid << "\n";
+    output << "Logs:\n";
+
+    // 2. Safely get the restricted range of logs
+    const auto& allLogs = logs;
+    size_t maxLogsToShow = 15;
+    size_t startIndex = (allLogs.size() > maxLogsToShow) ? allLogs.size() - maxLogsToShow : 0;
+
+    for (size_t i = startIndex; i < allLogs.size(); ++i) {
+        output << allLogs[i] << "\n";
     }
+
+    output << "\n";
+    output << "Current instruction line: " << currentLine << "\n";
+    output << "Lines of code: " << totalLines << "\n\n";
+
+    // 3. Finished State Marker
+    if (state == ProcessState::FINISHED) {
+        output << "Finished!\n\n";
+    }
+
+    // 4. Print the entire block to the console at once, naturally scrolling the screen down
+    return output.str();
+
 }
 
 std::string Process::getName() const {
@@ -87,4 +131,9 @@ void Process::decrementSleepTicks() {
     if (this->sleepTicks > 0) {
         this->sleepTicks--;
     }
+}
+
+void Process::addLog(const std::string& message) {
+    // Appends the timestamp and the message to the vector
+    logs.push_back(generateTimestamp() + " " + message);
 }
