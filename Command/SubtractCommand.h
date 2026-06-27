@@ -19,5 +19,5 @@ private:
     std::string op1;
     std::string op2;
 
-    uint32_t evaluateOperand(const std::string& operand) const;
+    [[nodiscard]] uint32_t evaluateOperand(const std::string& operand) const;
 };

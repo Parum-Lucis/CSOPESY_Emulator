@@ -18,7 +18,7 @@ public:
     Process(size_t id, std::string  processName, size_t lines);
 
     void executeNextInstruction();
-    void printProcessSMI() const;
+    void setState(ProcessState newState);
 
     void addCommand(std::shared_ptr<ACommand> command);
     std::unordered_map<std::string, uint16_t>& getLocalMemory();
@@ -28,6 +28,10 @@ public:
     [[nodiscard]] ProcessState getState() const { return state; }
     [[nodiscard]] size_t getCurrentLine() const { return currentLine; }
     [[nodiscard]] size_t getTotalLines() const { return totalLines; }
+
+    void setSleepTicks(int duration);
+    int getSleepTicks() const;
+    void decrementSleepTicks();
 
 private:
     static [[nodiscard]] std::string generateTimestamp() ;
@@ -42,4 +46,6 @@ private:
 
     std::unordered_map<std::string, uint16_t> localMemory;
     std::vector<std::shared_ptr<Instruction>> instructionList{};
+
+    int sleepTicks{};
 };

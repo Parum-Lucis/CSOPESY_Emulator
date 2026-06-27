@@ -29,6 +29,7 @@ private:
     ~ProcessScheduler() = default;
 
     std::queue<std::shared_ptr<Process>> readyQueue;
+    std::vector<std::shared_ptr<Process>> waitQueue;
 
     std::atomic<uint64_t> totalSystemTicks{0};
     std::atomic<uint64_t> activeCpuTicks{0};
@@ -42,6 +43,9 @@ private:
     std::atomic<bool> isRunning;
     std::atomic<bool> isGeneratingDummy;
 
+    std::thread schedulerThread;
+    void schedulerLoop();
+    
     void dummyGenerationLoop();
     static void generateDummyProcess(const std::shared_ptr<Process>& newProcess, size_t totalInstructions);
 };

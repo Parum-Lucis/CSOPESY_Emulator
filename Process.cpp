@@ -22,19 +22,6 @@ void Process::executeNextInstruction() {
     }
 }
 
-void Process::printProcessSMI() const {
-    // TODO ADD CORRECT PRINT PROCESS SMI;
-    std::cout << "Process name: " << name << "\n";
-    std::cout << "ID: " << pid << "\n\n";
-
-    if (state == ProcessState::FINISHED) {
-        std::cout << "Finished!\n";
-    } else {
-        std::cout << "Current instruction line: " << currentLine << "\n";
-        std::cout << "Lines of code: " << totalLines << "\n";
-    }
-}
-
 std::string Process::getName() const {
     return name;
 }
@@ -60,4 +47,18 @@ void Process::addCommand(std::shared_ptr<ACommand> command) {
 
 std::unordered_map<std::string, uint16_t>& Process::getLocalMemory() {
     return localMemory;
+}
+
+void Process::setSleepTicks(int duration) {
+    this->sleepTicks = duration;
+}
+
+int Process::getSleepTicks() const {
+    return this->sleepTicks;
+}
+
+void Process::decrementSleepTicks() {
+    if (this->sleepTicks > 0) {
+        this->sleepTicks--;
+    }
 }

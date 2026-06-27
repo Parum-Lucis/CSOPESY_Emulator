@@ -27,7 +27,33 @@ void ProcessScheduler::start() {
     }
 
     generatorThread = std::thread(&ProcessScheduler::dummyGenerationLoop, this);
+
+    schedulerThread = std::thread(&ProcessScheduler::schedulerLoop, this);
 }
+
+void ProcessScheduler::schedulerLoop() {
+    while (isRunning) {
+        {
+            std::lock_guard<std::mutex> lock(queueMutex);
+
+            for (auto it = waitQueue.begin(); it != waitQueue.end(); ) {
+                auto p = *it;
+
+                p->decrementSleepTicks();
+
+                if (p->getSleepTicks() <= 0) {
+                    p->setState(ProcessState::READY);
+                    readyQueue.push(p);
+                    it = waitQueue.erase(it);
+                } else {
+                    ++it;
+                }
+            }
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+}
+
 
 void ProcessScheduler::stop() {
     isRunning = false;
@@ -35,6 +61,10 @@ void ProcessScheduler::stop() {
 
     if (generatorThread.joinable()) {
         generatorThread.join();
+    }
+
+    if (schedulerThread.joinable()) {
+        schedulerThread.join();
     }
 
     for (auto& cpu : cpuWorkers) {
@@ -61,8 +91,16 @@ std::shared_ptr<Process> ProcessScheduler::fetchNextProcess() {
 }
 
 void ProcessScheduler::requeueProcess(const std::shared_ptr<Process>& process) {
-    if (process->getState() != ProcessState::FINISHED) {
-        addProcess(process);
+    if (process->getState() == ProcessState::FINISHED) {
+        return;
+    }
+
+    std::lock_guard<std::mutex> lock(queueMutex);
+
+    if (process->getState() == ProcessState::WAITING) {
+        waitQueue.push_back(process);
+    } else {
+        readyQueue.push(process);
     }
 }
 
