@@ -41,6 +41,7 @@ void MainMenuConsole::processInput() {
             if (currentInput == "exit") {
                 ProcessScheduler::getInstance()->stop();
                 running = false;
+                ProcessScheduler::getInstance()->shutdownSystem();
                 std::cout << "\n";
             }
             else if (!currentInput.empty()) {
@@ -50,6 +51,9 @@ void MainMenuConsole::processInput() {
                     if (!initialized) {
                         ConfigManager::getInstance()->initialize();
                         initialized = true;
+
+                        // NEW: Fire up CPUs and Wait Queue manager immediately
+                        ProcessScheduler::getInstance()->initializeSystem();
 
 						//FOR TESTING: Display the loaded configuration
                         std::stringstream ss;
@@ -74,7 +78,19 @@ void MainMenuConsole::processInput() {
                     responseStr = "Error: System not initialized. Please run 'initialize' first.";
                 }
                 else {
-                    if (currentInput == "scheduler-start") {
+                    if (currentInput == "test") {
+                        std::stringstream ss;
+                        ss << "Command Recognized: test\n";
+
+                        size_t qSize = ProcessScheduler::getInstance()->getReadyQueueSize();
+                        size_t wSize = ProcessScheduler::getInstance()->getWaitQueueSize();
+
+                        ss << "Current Ready Queue Size: " << qSize << "\n";
+                        ss << "Current Wait Queue Size: " << wSize << "\n";
+
+                        responseStr = ss.str();
+                    }
+                    else if (currentInput == "scheduler-start") {
                         // Guard: Check if it's already running
                         if (ProcessScheduler::getInstance()->isGeneratorRunning()) {
                             responseStr = "Command Recognized: scheduler-start\n=> Error: CPU Scheduler is already running.";
@@ -118,6 +134,7 @@ void MainMenuConsole::processInput() {
 
                             auto latest = ProcessScheduler::getInstance()->getLatestProcess();
                             size_t qSize = ProcessScheduler::getInstance()->getReadyQueueSize();
+                            size_t wSize = ProcessScheduler::getInstance()->getWaitQueueSize();
 
                             ss << "\n--- Scheduler Status ---\n";
                             if (latest) {
@@ -130,6 +147,7 @@ void MainMenuConsole::processInput() {
                                 ss << "Latest Process Generated: None\n";
                             }
                             ss << "Current Ready Queue Size: " << qSize << "\n";
+                            ss << "Current Wait Queue Size: " << wSize << "\n";
 
                             responseStr = ss.str();
                         }

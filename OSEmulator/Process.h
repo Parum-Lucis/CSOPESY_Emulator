@@ -32,6 +32,10 @@ public:
     [[nodiscard]] std::string getCreationTime() const { return creationTime; }
     [[nodiscard]] int getCoreAssigned() const { return coreAssigned; }
 
+    void setSleepTicks(int duration);
+    int getSleepTicks() const;
+    void decrementSleepTicks();
+
     // Add a setter for the CPUWorker to use
     void setCoreAssigned(int coreID) { coreAssigned = coreID; }
 
@@ -51,4 +55,6 @@ private:
 
     std::unordered_map<std::string, uint16_t> localMemory;
     std::vector<std::shared_ptr<ACommand>> commandList{};
+
+    int sleepTicks{};
 };

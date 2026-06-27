@@ -13,6 +13,9 @@ class ProcessScheduler {
 public:
     static ProcessScheduler* getInstance();
 
+    ProcessScheduler(const ProcessScheduler&) = delete;
+    ProcessScheduler& operator=(const ProcessScheduler&) = delete;
+
     void start();
     void stop();
 
@@ -24,6 +27,7 @@ public:
 
     // --- NEW ADDITIONS FOR TESTING ---
     [[nodiscard]] size_t getReadyQueueSize() const;
+    [[nodiscard]] size_t getWaitQueueSize() const;
     [[nodiscard]] std::shared_ptr<Process> getFirstProcess() const;
     [[nodiscard]] std::shared_ptr<Process> getLatestProcess() const;
 
@@ -34,6 +38,9 @@ public:
     [[nodiscard]] std::vector<std::shared_ptr<Process>> getAllProcesses() const;
     [[nodiscard]] size_t getCoresUsed() const;
 
+    void initializeSystem();
+    void shutdownSystem();
+    void moveToWaitQueue(const std::shared_ptr<Process>& process);
 private:
     ProcessScheduler() : isRunning(false) {}
     ~ProcessScheduler() = default;
@@ -42,6 +49,7 @@ private:
     size_t globalProcessCounter = 1;
 
     std::queue<std::shared_ptr<Process>> readyQueue;
+    std::vector<std::shared_ptr<Process>> waitQueue;
     std::vector<std::shared_ptr<Process>> allProcessList; // Master record of all processes
 
     std::atomic<uint64_t> totalSystemTicks{ 0 };
@@ -55,10 +63,14 @@ private:
     std::atomic<bool> isRunning;
     void batchGeneratorLoop();
 
+    std::thread schedulerThread;
+    void schedulerLoop();
+
     // Stats Tracking
     std::shared_ptr<Process> firstProcess;
     std::shared_ptr<Process> latestProcess;
     mutable std::mutex statsMutex; // Reused to protect allProcessList as well
 
-   void generateDummyProcess(const std::shared_ptr<Process>& newProcess, size_t totalInstructions);
+    void generateDummyProcess(const std::shared_ptr<Process>& newProcess, size_t totalInstructions);
+    std::atomic<bool> systemRunning{ false };
 };

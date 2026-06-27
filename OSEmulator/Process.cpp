@@ -74,3 +74,17 @@ std::string Process::stateToString(ProcessState state) {
     default: return "UNKNOWN";
     }
 }
+
+void Process::setSleepTicks(int duration) {
+    this->sleepTicks = duration;
+}
+
+int Process::getSleepTicks() const {
+    return this->sleepTicks;
+}
+
+void Process::decrementSleepTicks() {
+    if (this->sleepTicks > 0) {
+        this->sleepTicks--;
+    }
+}

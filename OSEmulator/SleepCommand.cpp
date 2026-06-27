@@ -1,21 +1,25 @@
 #include "SleepCommand.h"
-#include <thread>
-#include <chrono>
-#include <iostream>
 #include <stdexcept>
 #include <utility>
 
-SleepCommand::SleepCommand(std::string  sleepDuration)
-    : durationStr(std::move(sleepDuration)){}
+SleepCommand::SleepCommand(std::shared_ptr<Process> process, std::string sleepDuration)
+    : currentProcess(process), durationStr(std::move(sleepDuration)) { // CHANGED: direct assignment
+}
 
 void SleepCommand::execute() {
     try {
-        const int duration = std::stoi(durationStr);
+        int duration = std::stoi(durationStr);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(duration));
-    } catch (const std::invalid_argument& e) {
-        std::cerr << "Emulator Error: Invalid sleep duration format '" << durationStr << "'." << std::endl;
-    } catch (const std::out_of_range& e) {
-        std::cerr << "Emulator Error: sleep duration '" << durationStr << "'is out of range." << std::endl;
+        if (duration < 0) duration = 0;
+        if (duration > 255) duration = 255;
+
+        // CHANGED: Lock the weak_ptr to safely access the Process
+        if (auto process = currentProcess.lock()) {
+            process->setState(ProcessState::WAITING);
+            process->setSleepTicks(duration);
+        }
+
     }
+    catch (const std::invalid_argument& e) {}
+    catch (const std::out_of_range& e) {}
 }

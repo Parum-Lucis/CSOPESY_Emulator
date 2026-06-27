@@ -37,26 +37,45 @@ void CPU::runWorkerLoop() {
             if (schedulerAlgo == "fcfs") {
                 while (currentProcess->getState() != ProcessState::FINISHED) {
                     currentProcess->executeNextInstruction();
+
+                    // NEW: Check if the command put the process to sleep
+                    if (currentProcess->getState() == ProcessState::WAITING) {
+                        ProcessScheduler::getInstance()->moveToWaitQueue(currentProcess);
+                        break;
+                    }
                     applyDelay();
                 }
                 currentProcess = nullptr;
             }
 
             else if (schedulerAlgo == "rr") {
+                bool wentToSleep = false;
                 for (uint32_t i = 0; i < timeQuantum; ++i) {
                     if (currentProcess->getState() == ProcessState::FINISHED) {
                         break;
                     }
                     currentProcess->executeNextInstruction();
+
+                    // NEW: Check if the command put the process to sleep
+                    if (currentProcess->getState() == ProcessState::WAITING) {
+                        ProcessScheduler::getInstance()->moveToWaitQueue(currentProcess);
+                        wentToSleep = true;
+                        break; // Yield CPU early
+                    }
                     applyDelay();
                 }
 
-                if (currentProcess->getState() == ProcessState::FINISHED) {
-                    currentProcess = nullptr;
-                } else {
-                    // 2. Transition back to READY before requeuing
-                    currentProcess->setState(ProcessState::READY);
-                    ProcessScheduler::getInstance()->requeueProcess(currentProcess);
+                if (!wentToSleep) { // Only requeue if it didn't go to sleep
+                    if (currentProcess->getState() == ProcessState::FINISHED) {
+                        currentProcess = nullptr;
+                    }
+                    else {
+                        currentProcess->setState(ProcessState::READY);
+                        ProcessScheduler::getInstance()->requeueProcess(currentProcess);
+                        currentProcess = nullptr;
+                    }
+                }
+                else {
                     currentProcess = nullptr;
                 }
             }
